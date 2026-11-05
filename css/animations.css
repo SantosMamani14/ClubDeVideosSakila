@@ -1,0 +1,186 @@
+/*
+ * Fase 2 · Movimiento de Sakila, compartido por todas las páginas.
+ * Entradas al cargar la página y respuestas a interacciones HTML nativas.
+ * Sin JavaScript, parpadeos ni bucles. El contenido es visible por defecto.
+ * base.css conserva la protección global de prefers-reduced-motion.
+ */
+
+@keyframes sakila-entrar {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sakila-revelar {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* El movimiento solo se habilita si el dispositivo no pide reducirlo. */
+@media (prefers-reduced-motion: no-preference) {
+  /* backwards evita retener transform y bloquear los efectos de hover. */
+  .hero__content > *,
+  .page-heading > *,
+  .genre-card,
+  .steps > li,
+  .stat-card {
+    animation: sakila-entrar var(--motion-entry) var(--motion-ease) backwards;
+  }
+
+  .hero__content > h1,
+  .page-heading > h1 {
+    animation-delay: 60ms;
+  }
+
+  .hero__description,
+  .page-heading > p:last-child {
+    animation-delay: 120ms;
+  }
+
+  .hero__actions { animation-delay: 180ms; }
+  .hero__content > .hero__note { animation-delay: 240ms; }
+
+  .hero__visual,
+  .empty-state,
+  .catalog-filters,
+  .cart-summary,
+  .help-intro {
+    animation: sakila-revelar var(--motion-entry) ease-out 120ms backwards;
+  }
+
+  .genre-card:nth-child(2),
+  .steps > li:nth-child(2),
+  .stat-card:nth-child(2) {
+    animation-delay: 80ms;
+  }
+
+  .genre-card:nth-child(3),
+  .steps > li:nth-child(3),
+  .stat-card:nth-child(3) {
+    animation-delay: 160ms;
+  }
+
+  .stat-card:nth-child(4) { animation-delay: 240ms; }
+
+  /* Un foco de teclado debe verse inmediatamente, incluso durante la entrada. */
+  .hero__content > *:focus-within,
+  .page-heading > *:focus-within,
+  .genre-card:focus-within,
+  .empty-state:focus-within,
+  .catalog-filters:focus-within,
+  .cart-summary:focus-within,
+  .help-intro:focus-within {
+    animation: none;
+  }
+
+  /* Subrayado de las pestañas: no desplaza el menú ni su contenedor móvil. */
+  .primary-nav a { position: relative; }
+
+  .primary-nav a::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0.95rem;
+    bottom: 0.35rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--motion-fast) ease-out;
+  }
+
+  .primary-nav a[aria-current="page"]::after,
+  .primary-nav a.is-active::after,
+  .primary-nav a:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  a.button[href]:not([aria-disabled="true"]),
+  button:enabled,
+  .header-cart {
+    transition:
+      transform var(--motion-fast) var(--motion-ease),
+      background-color var(--transition),
+      border-color var(--transition),
+      color var(--transition);
+  }
+
+  .genre-card,
+  .movie-card,
+  .favorite-card {
+    transition:
+      transform 240ms var(--motion-ease),
+      border-color var(--transition),
+      box-shadow 240ms ease-out;
+  }
+
+  .genre-card:focus-within,
+  .movie-card:focus-within,
+  .favorite-card:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-card);
+  }
+
+  .button > .icon,
+  .text-link > .icon,
+  .genre-card a > .icon {
+    transition: transform var(--motion-fast) var(--motion-ease);
+  }
+
+  a.button[href]:focus-visible > .icon,
+  button:enabled:focus-visible > .icon,
+  .text-link:focus-visible > .icon,
+  .genre-card a:focus-visible > .icon {
+    transform: translateX(3px);
+  }
+
+  input:enabled,
+  select:enabled,
+  textarea:enabled,
+  .help-item summary {
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  /* El acordeón sigue siendo details/summary; no se simula su altura con CSS. */
+  .help-item[open] > p {
+    animation: sakila-revelar var(--motion-fast) ease-out;
+  }
+
+  .help-item[open] > p:focus-within { animation: none; }
+}
+
+/* Efectos de puntero solo donde existe hover real; no quedan pegados al tocar. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .primary-nav a:hover::after { transform: scaleX(1); }
+
+  a.button[href]:not([aria-disabled="true"]):hover,
+  button:enabled:hover,
+  .header-cart:hover {
+    transform: translateY(-2px);
+  }
+
+  a.button[href]:not([aria-disabled="true"]):active,
+  button:enabled:active,
+  .header-cart:active {
+    transform: translateY(0);
+  }
+
+  .genre-card:hover,
+  .movie-card:hover,
+  .favorite-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-card);
+  }
+
+  a.button[href]:not([aria-disabled="true"]):hover > .icon,
+  button:enabled:hover > .icon,
+  .text-link:hover > .icon,
+  .genre-card a:hover > .icon {
+    transform: translateX(3px);
+  }
+}

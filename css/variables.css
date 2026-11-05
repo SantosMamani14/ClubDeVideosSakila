@@ -26,4 +26,7 @@
   --radius-lg: 1.2rem;
   --shadow-card: 0 18px 44px rgb(0 0 0 / 14%);
   --transition: 180ms ease;
+  --motion-fast: 180ms;
+  --motion-entry: 560ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
