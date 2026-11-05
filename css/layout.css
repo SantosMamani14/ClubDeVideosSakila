@@ -1,4 +1,3 @@
-/* Estructuras comunes. Las pestañas son enlaces HTML, no requieren JavaScript. */
 .container { width: min(var(--content-width), calc(100% - var(--gutter) * 2)); margin-inline: auto; }
 .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--color-border-soft); background: rgb(16 18 17 / 96%); backdrop-filter: blur(16px); }
 .header-inner { min-height: 94px; display: flex; align-items: center; gap: 2rem; }

@@ -9,11 +9,16 @@
     <title>Inicio | Sakila · Club de Videos</title>
     <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
-         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
-         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+    <script src="js/vendor/vue.global.prod.js" defer></script>
+    <script src="js/domain.js" defer></script>
+    <script src="js/store.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/main.js" defer></script>
   </head>
   <body class="page-index">
+    <p class="app-startup" id="app-loading" role="status">Cargando Sakila…</p>
+    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales. <a href="ayuda.html">Consultar ayuda</a></p></noscript>
+    <div id="app" v-cloak>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
     <header class="site-header" id="arriba">
       <div class="container header-inner">
@@ -31,10 +36,13 @@
           </ul>
         </nav>
         <a class="header-cart" href="carrito.html">
-          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" :aria-label="cartCount + ' películas'" v-text="cartCount"></span>
         </a>
       </div>
     </header>
+
+      <div v-show="notice" class="container app-message" role="status" aria-live="polite">{{ notice }} <button type="button" @click="notice = ''" aria-label="Cerrar mensaje">Cerrar</button></div>
+      <div v-if="storageWarning" class="container notice storage-notice" role="status">{{ storageWarning }}</div>
     <main class="site-main" id="contenido" tabindex="-1">
       <section class="hero container" id="inicio" aria-labelledby="inicio-titulo">
         <div class="hero__content">
@@ -52,23 +60,23 @@
           <figcaption class="hero__caption"><span class="hero__caption-line" aria-hidden="true"></span>Apaga el ruido. Enciende el cine.</figcaption>
         </figure>
       </section>
-      <div class="container"><aside class="notice notice--compact" aria-label="Disponibilidad del club"><span class="status-dot" aria-hidden="true"></span><p>Estamos preparando la cartelera. Las búsquedas y reservas estarán disponibles próximamente.</p><a href="ayuda.html">Saber más <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside></div>
+      <div class="container"><aside class="notice notice--compact" aria-label="Disponibilidad del club"><span class="status-dot" aria-hidden="true"></span><p>Explora películas y organiza tus reservas por {{ money(policies.dailyRateCents) }} al día. Esta demostración no realiza cobros.</p><a href="ayuda.html">Saber más <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside></div>
       <section class="section container" aria-labelledby="generos-titulo">
         <header class="section-heading section-heading--split">
           <div><p class="eyebrow">Para cada estado de ánimo</p><h2 id="generos-titulo">El cine, a tu manera.</h2></div>
           <a class="text-link" href="catalogo.html">Conocer el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
         </header>
         <div class="genre-grid">
-          <article class="genre-card genre-card--action"><div class="genre-card__art" aria-hidden="true"><span>01</span></div><p class="eyebrow">Siente la adrenalina</p><h3>Acción</h3><p>Historias que no te dejan al borde de la butaca. Te llevan más allá.</p><a href="catalogo.html" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
-          <article class="genre-card genre-card--drama"><div class="genre-card__art" aria-hidden="true"><span>02</span></div><p class="eyebrow">Quédate con la emoción</p><h3>Drama</h3><p>Personajes que se sienten cercanos. Historias que siguen contigo.</p><a href="catalogo.html" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
-          <article class="genre-card genre-card--scifi"><div class="genre-card__art" aria-hidden="true"><span>03</span></div><p class="eyebrow">Imagina lo imposible</p><h3>Ciencia ficción</h3><p>Otros mundos, nuevas preguntas y un universo de posibilidades.</p><a href="catalogo.html" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--action"><div class="genre-card__art" aria-hidden="true"><span>01</span></div><p class="eyebrow">Siente la adrenalina</p><h3>Acción</h3><p>Historias que no te dejan al borde de la butaca. Te llevan más allá.</p><a href="catalogo.html?genero=accion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--drama"><div class="genre-card__art" aria-hidden="true"><span>02</span></div><p class="eyebrow">Quédate con la emoción</p><h3>Drama</h3><p>Personajes que se sienten cercanos. Historias que siguen contigo.</p><a href="catalogo.html?genero=drama" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--scifi"><div class="genre-card__art" aria-hidden="true"><span>03</span></div><p class="eyebrow">Imagina lo imposible</p><h3>Ciencia ficción</h3><p>Otros mundos, nuevas preguntas y un universo de posibilidades.</p><a href="catalogo.html?genero=ciencia-ficcion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
         </div>
       </section>
       <section class="how-it-works section container" id="como-funciona" aria-labelledby="pasos-titulo">
         <header class="section-heading">
           <p class="eyebrow">Tu butaca te espera</p>
           <h2 id="pasos-titulo">Un buen plan, en tres pasos.</h2>
-          <p>Así podrás disfrutar del club cuando las reservas estén disponibles.</p>
+          <p>Encuentra una película, prepara tu reserva y lleva el control de tus devoluciones.</p>
         </header>
         <ol class="steps">
           <li><article><span class="step-number" aria-hidden="true">01</span><h3>Descubre</h3><p>Encuentra tu próxima película. Conoce su historia, su reparto y todo lo que la hace especial.</p></article></li>
@@ -97,10 +105,10 @@
       </div>
       <div class="container footer-bottom">
         <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
-        <p><small>Hecho para quienes aman el cine.</small></p>
+        <p><small>Datos de películas: <a href="https://www.stremio.com/" target="_blank" rel="noopener noreferrer">Cinemeta</a>. Hecho para quienes aman el cine.</small></p>
       </div>
-      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
-    </footer>
+      </footer>
 
+    </div>
   </body>
 </html>

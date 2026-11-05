@@ -9,11 +9,16 @@
     <title>Mi carrito | Sakila · Club de Videos</title>
     <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
-         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
-         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+    <script src="js/vendor/vue.global.prod.js" defer></script>
+    <script src="js/domain.js" defer></script>
+    <script src="js/store.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/main.js" defer></script>
   </head>
   <body class="page-carrito">
+    <p class="app-startup" id="app-loading" role="status">Cargando Sakila…</p>
+    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales. <a href="ayuda.html">Consultar ayuda</a></p></noscript>
+    <div id="app" v-cloak>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
     <header class="site-header" id="arriba">
       <div class="container header-inner">
@@ -31,45 +36,61 @@
           </ul>
         </nav>
         <a class="header-cart" href="carrito.html" aria-current="page">
-          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" :aria-label="cartCount + ' películas'" v-text="cartCount"></span>
         </a>
       </div>
     </header>
+
+      <div v-show="notice" class="container app-message" role="status" aria-live="polite">{{ notice }} <button type="button" @click="notice = ''" aria-label="Cerrar mensaje">Cerrar</button></div>
+      <div v-if="storageWarning" class="container notice storage-notice" role="status">{{ storageWarning }}</div>
     <main class="site-main" id="contenido" tabindex="-1">
       <section class="cart section container" id="carrito" aria-labelledby="carrito-titulo">
-<header class="page-heading">
-        <p class="eyebrow">Tu próxima sesión</p>
-        <h1 id="carrito-titulo">Mi carrito.</h1>
-        <p>Un lugar para reunir las historias que quieres llevarte a casa.</p>
-      </header>
-        <form class="cart-form cart-layout" id="formulario-carrito" aria-describedby="reserva-ayuda">
-          <div class="cart-content"><p class="status-label" id="carrito-estado" role="status" aria-atomic="true">No hay películas en el carrito.</p><div class="empty-state" id="carrito-vacio"><span class="empty-state__icon"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg></span>
-          <h2>Tu noche de cine aún tiene espacio.</h2>
-          <p>Cuando el catálogo esté disponible, podrás añadir títulos desde sus fichas.</p>
-          <a class="button button--secondary" href="catalogo.html">Explorar películas</a>
-        </div><fieldset class="cart-items" disabled hidden>
-            <legend>Películas y días de préstamo</legend>
-            <ul class="cart-list" id="lista-carrito" aria-label="Películas de la reserva" hidden></ul>
-            <button type="button" data-action="vaciar-carrito">Vaciar carrito</button>
-          </fieldset></div>
+        <header class="page-heading">
+          <p class="eyebrow">Tu próxima sesión</p><h1 id="carrito-titulo">Mi carrito.</h1>
+          <p>Un lugar para reunir las historias que quieres llevarte a casa.</p>
+        </header>
+        <form class="cart-form cart-layout" id="formulario-carrito" aria-describedby="reserva-ayuda" @submit.prevent="checkout">
+          <div class="cart-content">
+            <p class="status-label" id="carrito-estado" role="status" aria-atomic="true">{{ cartCount ? cartCount + ' películas en tu carrito.' : 'No hay películas en el carrito.' }}</p>
+            <div class="empty-state" id="carrito-vacio" v-if="!cartCount">
+              <h2>Tu noche de cine aún tiene espacio.</h2><p>Explora el catálogo y añade las películas que quieres reservar.</p><a class="button button--secondary" href="catalogo.html">Explorar películas</a>
+            </div>
+            <fieldset class="cart-items" v-else>
+              <legend>Películas y días de préstamo</legend>
+              <ul class="cart-list" id="lista-carrito" aria-label="Películas de la reserva">
+                <li class="cart-list__item" v-for="item in state.cart" :key="item.movie.id">
+                  <article class="cart-item">
+                    <h2><a :href="movieUrl(item.movie)">{{ item.movie.title }}</a></h2>
+                    <p>Tarifa por día: {{ money(policies.dailyRateCents) }}</p>
+                    <div class="form-field">
+                      <label :for="'dias-' + item.movie.id">Días de préstamo para {{ item.movie.title }}</label>
+                      <input type="number" :id="'dias-' + item.movie.id" :name="'dias-' + item.movie.id" min="1" max="30" step="1" inputmode="numeric" required :value="cartDays[item.movie.id] ?? item.days" @input="updateCartDays(item.movie.id, $event.target.value)" :aria-invalid="!validDays(cartDays[item.movie.id] ?? item.days)" :aria-describedby="'validacion-' + item.movie.id">
+                      <p :id="'validacion-' + item.movie.id" :class="{ 'field-error': !validDays(cartDays[item.movie.id] ?? item.days) }">Elige un número entero de 1 a 30 días.</p>
+                    </div>
+                    <p v-if="validDays(cartDays[item.movie.id] ?? item.days)">Devolución prevista: <time :datetime="dueFor(cartDays[item.movie.id] ?? item.days)">{{ displayDate(dueFor(cartDays[item.movie.id] ?? item.days)) }}</time></p>
+                    <p>Importe: <output :for="'dias-' + item.movie.id">{{ validDays(cartDays[item.movie.id] ?? item.days) ? money(amount(cartDays[item.movie.id] ?? item.days)) : 'Por revisar' }}</output></p>
+                    <button type="button" @click="removeFromCart(item.movie.id)" :aria-label="'Quitar del carrito: ' + item.movie.title">Quitar del carrito</button>
+                  </article>
+                </li>
+              </ul>
+              <button type="button" @click="clearCart">Vaciar carrito</button>
+            </fieldset>
+          </div>
           <section class="cart-summary" aria-labelledby="resumen-titulo">
             <h2 id="resumen-titulo">Resumen de la reserva</h2>
             <dl>
-              <dt>Películas seleccionadas</dt>
-              <dd><output id="carrito-cantidad">0</output></dd>
-              <dt>Subtotal de alquileres</dt>
-              <dd><output id="carrito-subtotal">Sin importe</output></dd>
-              <dt>Total de la reserva</dt>
-              <dd><output id="carrito-total">Sin importe</output></dd>
+              <dt>Películas seleccionadas</dt><dd><output id="carrito-cantidad">{{ cartCount }}</output></dd>
+              <dt>Subtotal de alquileres</dt><dd><output id="carrito-subtotal">{{ cartCount && checkoutInvalid ? 'Por revisar' : money(cartTotal) }}</output></dd>
+              <dt>Total de la reserva</dt><dd><output id="carrito-total">{{ cartCount && checkoutInvalid ? 'Por revisar' : money(cartTotal) }}</output></dd>
             </dl>
-            <p id="reserva-ayuda">Reservas disponibles próximamente. Verás el importe y la fecha de devolución antes de confirmar. Esta demostración no realiza cobros.</p>
-            <button class="button button--primary" type="button" data-action="confirmar-reserva" disabled>Confirmar reserva</button>
+            <p id="reserva-ayuda">Alquiler: {{ money(policies.dailyRateCents) }} por día, entre 1 y 30 días. Recargo simulado: {{ money(policies.lateFeeCents) }} por día de retraso. Esta demostración no realiza cobros.</p>
+            <button class="button button--primary" type="submit" :disabled="checkoutInvalid || cartCount === 0">Confirmar reserva</button>
             <a class="text-link" href="catalogo.html">Seguir explorando</a>
           </section>
         </form>
-        <section class="reservation-confirmation" id="reserva-confirmada" aria-labelledby="confirmacion-titulo" hidden>
-          <h3 id="confirmacion-titulo" tabindex="-1">Reserva registrada</h3>
-          <p id="confirmacion-detalle"></p>
+        <section class="reservation-confirmation" id="reserva-confirmada" aria-labelledby="confirmacion-titulo" v-if="lastReservation" role="status">
+          <h2 id="confirmacion-titulo" tabindex="-1">Reserva registrada</h2>
+          <p>{{ lastReservation.count }} películas reservadas por {{ money(lastReservation.totalCents) }}. Puedes consultar las fechas de devolución en Mi club.</p>
           <a href="mi-club.html#pendientes">Consultar mis devoluciones</a>
         </section>
       </section>
@@ -93,29 +114,9 @@
       </div>
       <div class="container footer-bottom">
         <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
-        <p><small>Hecho para quienes aman el cine.</small></p>
+        <p><small>Datos de películas: <a href="https://www.stremio.com/" target="_blank" rel="noopener noreferrer">Cinemeta</a>. Hecho para quienes aman el cine.</small></p>
       </div>
-      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
-    </footer>
-<template id="plantilla-item-carrito">
-      <li class="cart-list__item">
-        <article class="cart-item">
-          <h3 data-field="title">Título de la película</h3>
-          <dl>
-            <dt>Tarifa base</dt>
-            <dd data-field="rental-rate">Por definir</dd>
-            <dt>Días incluidos en la tarifa</dt>
-            <dd data-field="rental-duration">Por definir</dd>
-          </dl>
-          <label class="form-field">
-            <span>Días de préstamo</span>
-            <input type="number" name="dias-prestamo" min="1" step="1" inputmode="numeric" data-field="days" required disabled>
-          </label>
-          <p>Devolución prevista: <span data-field="due-date">Por calcular</span></p>
-          <p>Importe del alquiler: <output data-field="subtotal">Por calcular</output></p>
-          <button type="button" data-action="quitar-del-carrito" disabled>Quitar del carrito</button>
-        </article>
-      </li>
-    </template>
+      </footer>
+    </div>
   </body>
 </html>

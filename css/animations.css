@@ -1,10 +1,3 @@
-/*
- * Fase 2 · Movimiento de Sakila, compartido por todas las páginas.
- * Entradas al cargar la página y respuestas a interacciones HTML nativas.
- * Sin JavaScript, parpadeos ni bucles. El contenido es visible por defecto.
- * base.css conserva la protección global de prefers-reduced-motion.
- */
-
 @keyframes sakila-entrar {
   from {
     opacity: 0;
@@ -21,9 +14,9 @@
   to { opacity: 1; }
 }
 
-/* El movimiento solo se habilita si el dispositivo no pide reducirlo. */
+
 @media (prefers-reduced-motion: no-preference) {
-  /* backwards evita retener transform y bloquear los efectos de hover. */
+
   .hero__content > *,
   .page-heading > *,
   .genre-card,
@@ -67,7 +60,7 @@
 
   .stat-card:nth-child(4) { animation-delay: 240ms; }
 
-  /* Un foco de teclado debe verse inmediatamente, incluso durante la entrada. */
+
   .hero__content > *:focus-within,
   .page-heading > *:focus-within,
   .genre-card:focus-within,
@@ -78,7 +71,7 @@
     animation: none;
   }
 
-  /* Subrayado de las pestañas: no desplaza el menú ni su contenedor móvil. */
+
   .primary-nav a { position: relative; }
 
   .primary-nav a::after {
@@ -145,7 +138,7 @@
     transition: border-color var(--transition), color var(--transition);
   }
 
-  /* El acordeón sigue siendo details/summary; no se simula su altura con CSS. */
+
   .help-item[open] > p {
     animation: sakila-revelar var(--motion-fast) ease-out;
   }
@@ -153,7 +146,7 @@
   .help-item[open] > p:focus-within { animation: none; }
 }
 
-/* Efectos de puntero solo donde existe hover real; no quedan pegados al tocar. */
+
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   .primary-nav a:hover::after { transform: scaleX(1); }
 

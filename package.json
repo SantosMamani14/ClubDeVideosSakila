@@ -1,0 +1,13 @@
+{
+  "name": "club-de-videos-sakila",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Club de videos con Vue y un catálogo de películas conectado a una API pública.",
+  "scripts": {
+    "dev": "node scripts/serve.cjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.3"
+  }
+}

@@ -9,11 +9,16 @@
     <title>Ficha de película | Sakila · Club de Videos</title>
     <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
-         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
-         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+    <script src="js/vendor/vue.global.prod.js" defer></script>
+    <script src="js/domain.js" defer></script>
+    <script src="js/store.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/main.js" defer></script>
   </head>
   <body class="page-pelicula">
+    <p class="app-startup" id="app-loading" role="status">Cargando Sakila…</p>
+    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales. <a href="ayuda.html">Consultar ayuda</a></p></noscript>
+    <div id="app" v-cloak>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
     <header class="site-header" id="arriba">
       <div class="container header-inner">
@@ -31,86 +36,77 @@
           </ul>
         </nav>
         <a class="header-cart" href="carrito.html">
-          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" :aria-label="cartCount + ' películas'" v-text="cartCount"></span>
         </a>
       </div>
     </header>
+
+      <div v-show="notice" class="container app-message" role="status" aria-live="polite">{{ notice }} <button type="button" @click="notice = ''" aria-label="Cerrar mensaje">Cerrar</button></div>
+      <div v-if="storageWarning" class="container notice storage-notice" role="status">{{ storageWarning }}</div>
     <main class="site-main" id="contenido" tabindex="-1">
       <section class="movie-section section container" id="ficha-pelicula" aria-labelledby="ficha-titulo">
         <a class="back-link" href="catalogo.html">← Volver al catálogo</a>
-<header class="page-heading">
-        <p class="eyebrow">Antes de darle play</p>
-        <h1 id="ficha-titulo">Conoce la película.</h1>
-        <p>Una mirada a su historia, sus protagonistas y lo que te espera al otro lado de la pantalla.</p>
-      </header>
-        <div class="empty-state empty-state--large" id="ficha-vacia"><span class="empty-state__icon"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span><h2>Toda gran historia empieza con una elección.</h2>
-          <p>Selecciona una película del catálogo para abrir su ficha.</p>
+        <header class="page-heading">
+          <p class="eyebrow">Antes de darle play</p>
+          <h1 id="ficha-titulo">Conoce la película.</h1>
+          <p>Una mirada a su historia, sus protagonistas y lo que te espera al otro lado de la pantalla.</p>
+        </header>
+        <div class="empty-state" v-if="loading" role="status"><h2>Cargando la ficha…</h2><p>Un momento, estamos consultando la película.</p></div>
+        <div class="notice notice--error" v-else-if="error" role="alert"><p>{{ error }}</p><button type="button" @click="loadMovies()">Volver a intentar</button></div>
+        <div class="empty-state empty-state--large" id="ficha-vacia" v-else-if="!currentMovie">
+          <h2>Toda gran historia empieza con una elección.</h2>
+          <p>Esta película no está disponible. Selecciona un título del catálogo para abrir su ficha.</p>
           <a class="button button--primary" href="catalogo.html">Explorar películas</a>
         </div>
-
-        <article class="movie-detail" id="detalle-pelicula" aria-labelledby="detalle-titulo" hidden>
+        <article class="movie-detail" id="detalle-pelicula" aria-labelledby="detalle-titulo" v-else>
+          <div class="notice notice--retry" v-if="apiWarning"><p>{{ apiWarning }}</p><button type="button" @click="loadMovies()">Actualizar ficha</button></div>
           <header>
-            <p class="eyebrow" id="detalle-categoria">Categoría no disponible</p>
-            <h2 id="detalle-titulo" tabindex="-1">Película seleccionada</h2>
-            <p id="detalle-titulo-original" hidden></p>
+            <p class="eyebrow" id="detalle-categoria">{{ currentMovie.genres.join(' · ') || 'Sin categoría' }}</p>
+            <h2 id="detalle-titulo" tabindex="-1">{{ currentMovie.title }}</h2>
+            <p id="detalle-titulo-original" v-if="currentMovie.originalTitle &amp;&amp; currentMovie.originalTitle !== currentMovie.title">Título original: {{ currentMovie.originalTitle }}</p>
           </header>
           <figure class="movie-poster" id="detalle-cartel">
-            <!-- Insertar una imagen solo cuando exista una URL válida de la API.
-                 Incluir alt descriptivo, dimensiones, loading y variantes srcset. -->
-            <figcaption>Cartel no disponible.</figcaption>
+            <img v-if="currentMovie.poster &amp;&amp; !imageErrors[currentMovie.id]" :src="currentMovie.poster" :alt="'Cartel de ' + currentMovie.title" width="400" height="600" decoding="async" @error="onImageError(currentMovie.id)">
+            <figcaption v-else>Cartel no disponible.</figcaption>
           </figure>
           <dl class="movie-metadata">
-            <dt>Año de estreno</dt>
-            <dd id="detalle-anio">No disponible</dd>
-            <dt>Duración</dt>
-            <dd id="detalle-duracion">No disponible</dd>
-            <dt>Clasificación por edades</dt>
-            <dd id="detalle-clasificacion">Sin clasificación disponible</dd>
-            <dt>Idioma original</dt>
-            <dd id="detalle-idioma">No disponible</dd>
-            <dt>Tarifa base de alquiler</dt>
-            <dd id="detalle-tarifa">Por definir</dd>
-            <dt>Días incluidos en la tarifa</dt>
-            <dd id="detalle-plazo">Por definir</dd>
-            <dt>Disponibilidad para alquilar</dt>
-            <dd id="detalle-disponibilidad">Por confirmar</dd>
+            <dt>Año de estreno</dt><dd id="detalle-anio">{{ currentMovie.year || 'No disponible' }}</dd>
+            <dt>Duración</dt><dd id="detalle-duracion">{{ currentMovie.runtime ? currentMovie.runtime + ' minutos' : 'No disponible' }}</dd>
+            <dt>Clasificación por edades</dt><dd id="detalle-clasificacion">{{ currentMovie.certification }}</dd>
+            <dt>Idioma original</dt><dd id="detalle-idioma">{{ currentMovie.language || 'No disponible' }}</dd>
+            <dt>Tarifa por día</dt><dd id="detalle-tarifa">{{ money(policies.dailyRateCents) }}</dd>
+            <dt>Plazo de préstamo</dt><dd id="detalle-plazo">De {{ policies.minDays }} a {{ policies.maxDays }} días</dd>
+            <dt>Disponibilidad</dt><dd id="detalle-disponibilidad">{{ isRented(currentMovie.id) ? 'Ya tienes un alquiler activo.' : isInCart(currentMovie.id) ? 'Añadida a tu carrito.' : 'Disponible para reservar.' }}</dd>
           </dl>
-
-          <section aria-labelledby="sinopsis-titulo">
-            <h3 id="sinopsis-titulo">Sinopsis</h3>
-            <p id="detalle-sinopsis">Sinopsis no disponible.</p>
-          </section>
+          <section aria-labelledby="sinopsis-titulo"><h3 id="sinopsis-titulo">Sinopsis</h3><p id="detalle-sinopsis">{{ currentMovie.overview || 'Sinopsis no disponible.' }}</p></section>
           <section aria-labelledby="reparto-titulo">
             <h3 id="reparto-titulo">Reparto</h3>
-            <p id="reparto-vacio">Información del reparto no disponible.</p>
-            <ul class="cast-list" id="detalle-reparto" hidden></ul>
+            <ul class="cast-list" id="detalle-reparto" v-if="currentMovie.cast.length"><li v-for="(name, index) in currentMovie.cast" :key="currentMovie.id + '-reparto-' + index">{{ name }}</li></ul>
+            <p v-else>Información del reparto no disponible.</p>
           </section>
           <section aria-labelledby="trailer-titulo">
             <h3 id="trailer-titulo">Tráiler</h3>
-            <figure class="trailer">
-              <!-- No usar enlaces de YouTube como src de video. Si la API devuelve
-                   una plataforma de video, crear su iframe con title y sin autoplay.
-                   Este video queda reservado a medios reproducibles directamente. -->
-              <video id="detalle-trailer" controls playsinline preload="none" aria-label="Tráiler de la película seleccionada" aria-describedby="trailer-estado" hidden>
-                Tu navegador no admite la reproducción de este video.
-              </video>
-              <figcaption id="trailer-estado">Tráiler no disponible para esta película.</figcaption>
+            <figure class="trailer" v-if="trailerEmbed">
+              <iframe :src="trailerEmbed" :title="'Tráiler de ' + currentMovie.title" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+              <figcaption>Tráiler de {{ currentMovie.title }}.</figcaption>
             </figure>
-            <p id="trailer-enlace" hidden><a id="ver-trailer-externo">Ver el tráiler en su plataforma original</a></p>
+            <p v-if="currentMovie.trailer"><a :href="currentMovie.trailer" target="_blank" rel="noopener noreferrer">Ver el tráiler en su plataforma original (se abre en otra pestaña)</a></p>
+            <p id="trailer-estado" v-else>No hay un tráiler disponible para esta película.</p>
           </section>
-
-          <form class="rental-form" id="formulario-alquiler" aria-describedby="alquiler-ayuda">
-            <p id="alquiler-ayuda">Las reservas estarán disponibles al abrir el catálogo. Revisa la tarifa y el plazo antes de añadir una película.</p>
-            <fieldset disabled>
+          <form class="rental-form" id="formulario-alquiler" aria-describedby="alquiler-ayuda" @submit.prevent="addToCart(currentMovie, selectedDays)">
+            <p id="alquiler-ayuda">Tarifa del club: {{ money(policies.dailyRateCents) }} por día. Recargo simulado: {{ money(policies.lateFeeCents) }} por cada día de retraso. No se realizan cobros reales.</p>
+            <fieldset>
               <legend>Prepara tu alquiler</legend>
               <label for="dias-alquiler">Días de préstamo</label>
-              <input type="number" id="dias-alquiler" name="dias" min="1" step="1" inputmode="numeric" required>
-              <p>Importe estimado: <output id="importe-alquiler" for="dias-alquiler">Por calcular</output></p>
-              <button class="button button--primary" type="button" data-action="agregar-al-carrito">Añadir al carrito</button>
-              <button class="button button--secondary" type="button" data-action="guardar-favorito" aria-pressed="false">Guardar en favoritos</button>
+              <input type="number" id="dias-alquiler" name="dias" min="1" max="30" step="1" inputmode="numeric" required v-model="selectedDays" :aria-invalid="!validDays(selectedDays)" aria-describedby="dias-ayuda">
+              <p id="dias-ayuda" :class="{ 'field-error': !validDays(selectedDays) }">Elige un número entero entre 1 y 30 días.</p>
+              <p>Importe estimado: <output id="importe-alquiler" for="dias-alquiler">{{ validDays(selectedDays) ? money(amount(selectedDays)) : 'Revisa los días de préstamo' }}</output></p>
+              <p v-if="validDays(selectedDays)">Devolución prevista: <time :datetime="dueFor(selectedDays)">{{ displayDate(dueFor(selectedDays)) }}</time></p>
+              <button class="button button--primary" type="submit" :disabled="!validDays(selectedDays) || isRented(currentMovie.id) || isInCart(currentMovie.id)">{{ isRented(currentMovie.id) ? 'Alquiler activo' : isInCart(currentMovie.id) ? 'Ya está en tu carrito' : 'Añadir al carrito' }}</button>
+              <button class="button button--secondary" type="button" :aria-pressed="isFavorite(currentMovie.id)" @click="toggleFavorite(currentMovie)">{{ isFavorite(currentMovie.id) ? 'Quitar de favoritos' : 'Guardar en favoritos' }}</button>
             </fieldset>
           </form>
-          <a href="catalogo.html">Volver al catálogo</a>
+          <a v-if="isInCart(currentMovie.id)" href="carrito.html">Revisar mi carrito</a>
         </article>
       </section>
     </main>
@@ -133,10 +129,10 @@
       </div>
       <div class="container footer-bottom">
         <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
-        <p><small>Hecho para quienes aman el cine.</small></p>
+        <p><small>Datos de películas: <a href="https://www.stremio.com/" target="_blank" rel="noopener noreferrer">Cinemeta</a>. Hecho para quienes aman el cine.</small></p>
       </div>
-      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
-    </footer>
+      </footer>
 
+    </div>
   </body>
 </html>

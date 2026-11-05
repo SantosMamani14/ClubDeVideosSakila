@@ -9,11 +9,16 @@
     <title>Ayuda | Sakila · Club de Videos</title>
     <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
-         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
-         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+    <script src="js/vendor/vue.global.prod.js" defer></script>
+    <script src="js/domain.js" defer></script>
+    <script src="js/store.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/main.js" defer></script>
   </head>
   <body class="page-ayuda">
+    <p class="app-startup" id="app-loading" role="status">Cargando Sakila…</p>
+    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales. <a href="ayuda.html">Consultar ayuda</a></p></noscript>
+    <div id="app" v-cloak>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
     <header class="site-header" id="arriba">
       <div class="container header-inner">
@@ -31,39 +36,28 @@
           </ul>
         </nav>
         <a class="header-cart" href="carrito.html">
-          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" :aria-label="cartCount + ' películas'" v-text="cartCount"></span>
         </a>
       </div>
     </header>
+
+      <div v-show="notice" class="container app-message" role="status" aria-live="polite">{{ notice }} <button type="button" @click="notice = ''" aria-label="Cerrar mensaje">Cerrar</button></div>
+      <div v-if="storageWarning" class="container notice storage-notice" role="status">{{ storageWarning }}</div>
     <main class="site-main" id="contenido" tabindex="-1">
       <section class="help section container" id="ayuda" aria-labelledby="ayuda-titulo">
-<header class="page-heading">
-        <p class="eyebrow">Estamos para orientarte</p>
-        <h1 id="ayuda-titulo">Todo listo para tu próxima sesión.</h1>
-        <p>Conoce el club y encuentra respuestas antes de elegir tu primera película.</p>
-      </header>
+        <header class="page-heading"><p class="eyebrow">Estamos para orientarte</p><h1 id="ayuda-titulo">Todo listo para tu próxima sesión.</h1><p>Conoce el club y encuentra respuestas antes de elegir tu primera película.</p></header>
         <div class="help-layout">
-          <aside class="help-intro" aria-labelledby="help-intro-titulo"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg><h2 id="help-intro-titulo">El cine se disfruta<br>sin complicaciones.</h2><p>Desde descubrir una película hasta devolverla a tiempo: aquí empieza una experiencia sencilla.</p><a class="text-link" href="index.html#como-funciona">Así funciona Sakila <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside>
-          <div class="faq-list"><details class="help-item">
-          <summary>¿Ya puedo reservar una película?</summary>
-          <p>Todavía no. El club está en preparación. Por ahora puedes conocer sus secciones; los controles de búsqueda, reserva y devolución permanecen deshabilitados.</p>
-        </details>
-        <details class="help-item">
-          <summary>¿Qué información tendrá cada película?</summary>
-          <p>Podrás consultar su sinopsis, año de estreno, duración, categoría, clasificación y reparto. También verás el cartel y el tráiler cuando estén disponibles, junto con la tarifa y el plazo de alquiler del club.</p>
-        </details>
-        <details class="help-item">
-          <summary>¿Guardar una película en favoritos equivale a reservarla?</summary>
-          <p>No. Los favoritos serán una lista de películas que te interesan. Para reservar tendrás que añadir el título al carrito, elegir los días de préstamo y confirmar el resumen.</p>
-        </details>
-        <details class="help-item">
-          <summary>¿Dónde consultaré las fechas de devolución?</summary>
-          <p>En <a href="mi-club.html#pendientes">Pendientes de devolución</a>. Los préstamos finalizados se podrán consultar en el <a href="mi-club.html#historial">historial de alquileres</a>.</p>
-        </details>
-        <details class="help-item">
-          <summary>¿Esta demostración realiza cobros?</summary>
-          <p>No. El proyecto simula un club de alquiler de películas. Las reservas y las multas no representan transacciones reales.</p>
-        </details></div>
+          <aside class="help-intro" aria-labelledby="help-intro-titulo"><h2 id="help-intro-titulo">El cine se disfruta<br>sin complicaciones.</h2><p>Desde descubrir una película hasta devolverla a tiempo: aquí empieza una experiencia sencilla.</p><a class="text-link" href="index.html#como-funciona">Así funciona Sakila →</a></aside>
+          <div class="faq-list">
+            <details class="help-item"><summary>¿Cómo reservo una película?</summary><p>Abre su ficha desde el <a href="catalogo.html">catálogo</a>, elige de 1 a 30 días y añádela al carrito. Revisa el importe y la fecha de devolución; después pulsa «Confirmar reserva». La película aparecerá en Mi club.</p></details>
+            <details class="help-item"><summary>¿Cuánto cuesta el alquiler?</summary><p>La tarifa de esta demostración es {{ money(policies.dailyRateCents) }} por película y día. Por ejemplo, tres días cuestan {{ money(policies.dailyRateCents * 3) }}. Se aceptan plazos enteros de 1 a 30 días. Los importes son reglas del club y no precios de la fuente de películas.</p></details>
+            <details class="help-item"><summary>¿Qué información tiene cada película?</summary><p>La ficha muestra la información disponible en el catálogo: sinopsis, año, duración, géneros, clasificación, reparto y cartel. Si la fuente incluye un tráiler, también encontrarás su enlace. Los datos que no estén disponibles se indican expresamente.</p></details>
+            <details class="help-item"><summary>¿Guardar en favoritos equivale a reservar?</summary><p>No. Los favoritos son tu lista de películas de interés. La reserva se realiza únicamente al confirmar las películas del <a href="carrito.html">carrito</a>.</p></details>
+            <details class="help-item"><summary>¿Cómo registro una devolución?</summary><p>Entra a <a href="mi-club.html#pendientes">Pendientes de devolución</a> y pulsa «Registrar devolución» en la película correspondiente. El préstamo pasará al historial y cualquier recargo dejará de aumentar.</p></details>
+            <details class="help-item"><summary>¿Cómo funcionan las multas simuladas?</summary><p>Se añaden {{ money(policies.lateFeeCents) }} por cada día de calendario posterior a la fecha límite. Las fechas se calculan con la hora de Bolivia. El día de vencimiento no genera recargo.</p></details>
+            <details class="help-item"><summary>¿Dónde se guarda mi actividad?</summary><p>El carrito, los favoritos y los alquileres se guardan en este navegador y dispositivo. Si borras los datos del sitio, cambias de navegador o usas navegación privada, tu actividad puede no conservarse. Si no se puede guardar, el club te mostrará un aviso.</p></details>
+            <details class="help-item"><summary>¿Esta demostración realiza cobros o reproduce películas completas?</summary><p>No. Sakila es un proyecto académico de gestión de alquileres. Las reservas y multas son simuladas, no hay pagos reales ni acceso a películas completas.</p></details>
+          </div>
         </div>
       </section>
     </main>
@@ -86,10 +80,10 @@
       </div>
       <div class="container footer-bottom">
         <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
-        <p><small>Hecho para quienes aman el cine.</small></p>
+        <p><small>Datos de películas: <a href="https://www.stremio.com/" target="_blank" rel="noopener noreferrer">Cinemeta</a>. Hecho para quienes aman el cine.</small></p>
       </div>
-      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
-    </footer>
+      </footer>
 
+    </div>
   </body>
 </html>
