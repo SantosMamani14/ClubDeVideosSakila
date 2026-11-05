@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Consulta la sinopsis, el reparto, la duración, el tráiler y las condiciones de alquiler de una película en Sakila.">
+    <meta name="theme-color" content="#101211">
+    <meta name="color-scheme" content="dark">
+    <title>Ficha de película | Sakila · Club de Videos</title>
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
+         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
+         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+  </head>
+  <body class="page-pelicula">
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="site-header" id="arriba">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+          <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navegación principal">
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="catalogo.html" class="is-active">Catálogo</a></li>
+            <li><a href="favoritos.html">Favoritos</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+          </ul>
+        </nav>
+        <a class="header-cart" href="carrito.html">
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+        </a>
+      </div>
+    </header>
+    <main class="site-main" id="contenido" tabindex="-1">
+      <section class="movie-section section container" id="ficha-pelicula" aria-labelledby="ficha-titulo">
+        <a class="back-link" href="catalogo.html">← Volver al catálogo</a>
+<header class="page-heading">
+        <p class="eyebrow">Antes de darle play</p>
+        <h1 id="ficha-titulo">Conoce la película.</h1>
+        <p>Una mirada a su historia, sus protagonistas y lo que te espera al otro lado de la pantalla.</p>
+      </header>
+        <div class="empty-state empty-state--large" id="ficha-vacia"><span class="empty-state__icon"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span><h2>Toda gran historia empieza con una elección.</h2>
+          <p>Selecciona una película del catálogo para abrir su ficha.</p>
+          <a class="button button--primary" href="catalogo.html">Explorar películas</a>
+        </div>
+
+        <article class="movie-detail" id="detalle-pelicula" aria-labelledby="detalle-titulo" hidden>
+          <header>
+            <p class="eyebrow" id="detalle-categoria">Categoría no disponible</p>
+            <h2 id="detalle-titulo" tabindex="-1">Película seleccionada</h2>
+            <p id="detalle-titulo-original" hidden></p>
+          </header>
+          <figure class="movie-poster" id="detalle-cartel">
+            <!-- Insertar una imagen solo cuando exista una URL válida de la API.
+                 Incluir alt descriptivo, dimensiones, loading y variantes srcset. -->
+            <figcaption>Cartel no disponible.</figcaption>
+          </figure>
+          <dl class="movie-metadata">
+            <dt>Año de estreno</dt>
+            <dd id="detalle-anio">No disponible</dd>
+            <dt>Duración</dt>
+            <dd id="detalle-duracion">No disponible</dd>
+            <dt>Clasificación por edades</dt>
+            <dd id="detalle-clasificacion">Sin clasificación disponible</dd>
+            <dt>Idioma original</dt>
+            <dd id="detalle-idioma">No disponible</dd>
+            <dt>Tarifa base de alquiler</dt>
+            <dd id="detalle-tarifa">Por definir</dd>
+            <dt>Días incluidos en la tarifa</dt>
+            <dd id="detalle-plazo">Por definir</dd>
+            <dt>Disponibilidad para alquilar</dt>
+            <dd id="detalle-disponibilidad">Por confirmar</dd>
+          </dl>
+
+          <section aria-labelledby="sinopsis-titulo">
+            <h3 id="sinopsis-titulo">Sinopsis</h3>
+            <p id="detalle-sinopsis">Sinopsis no disponible.</p>
+          </section>
+          <section aria-labelledby="reparto-titulo">
+            <h3 id="reparto-titulo">Reparto</h3>
+            <p id="reparto-vacio">Información del reparto no disponible.</p>
+            <ul class="cast-list" id="detalle-reparto" hidden></ul>
+          </section>
+          <section aria-labelledby="trailer-titulo">
+            <h3 id="trailer-titulo">Tráiler</h3>
+            <figure class="trailer">
+              <!-- No usar enlaces de YouTube como src de video. Si la API devuelve
+                   una plataforma de video, crear su iframe con title y sin autoplay.
+                   Este video queda reservado a medios reproducibles directamente. -->
+              <video id="detalle-trailer" controls playsinline preload="none" aria-label="Tráiler de la película seleccionada" aria-describedby="trailer-estado" hidden>
+                Tu navegador no admite la reproducción de este video.
+              </video>
+              <figcaption id="trailer-estado">Tráiler no disponible para esta película.</figcaption>
+            </figure>
+            <p id="trailer-enlace" hidden><a id="ver-trailer-externo">Ver el tráiler en su plataforma original</a></p>
+          </section>
+
+          <form class="rental-form" id="formulario-alquiler" aria-describedby="alquiler-ayuda">
+            <p id="alquiler-ayuda">Las reservas estarán disponibles al abrir el catálogo. Revisa la tarifa y el plazo antes de añadir una película.</p>
+            <fieldset disabled>
+              <legend>Prepara tu alquiler</legend>
+              <label for="dias-alquiler">Días de préstamo</label>
+              <input type="number" id="dias-alquiler" name="dias" min="1" step="1" inputmode="numeric" required>
+              <p>Importe estimado: <output id="importe-alquiler" for="dias-alquiler">Por calcular</output></p>
+              <button class="button button--primary" type="button" data-action="agregar-al-carrito">Añadir al carrito</button>
+              <button class="button button--secondary" type="button" data-action="guardar-favorito" aria-pressed="false">Guardar en favoritos</button>
+            </fieldset>
+          </form>
+          <a href="catalogo.html">Volver al catálogo</a>
+        </article>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+            <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+          </a>
+          <p>Una película para cada momento.</p>
+        </div>
+        <nav aria-label="Navegación del pie de página">
+          <ul>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#arriba">Volver arriba ↑</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
+        <p><small>Hecho para quienes aman el cine.</small></p>
+      </div>
+      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
+    </footer>
+
+  </body>
+</html>

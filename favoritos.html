@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Guarda y encuentra tus películas favoritas en Sakila. Prepara tu lista para la próxima noche de cine.">
+    <meta name="theme-color" content="#101211">
+    <meta name="color-scheme" content="dark">
+    <title>Favoritos | Sakila · Club de Videos</title>
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
+         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
+         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+  </head>
+  <body class="page-favoritos">
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="site-header" id="arriba">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+          <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navegación principal">
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="favoritos.html" aria-current="page">Favoritos</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+          </ul>
+        </nav>
+        <a class="header-cart" href="carrito.html">
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+        </a>
+      </div>
+    </header>
+    <main class="site-main" id="contenido" tabindex="-1">
+      <section class="favorites section container" id="favoritos" aria-labelledby="favoritos-titulo">
+<header class="page-heading">
+        <p class="eyebrow">Guárdalas para otra noche</p>
+        <h1 id="favoritos-titulo">Mis favoritos.</h1>
+        <p>Un pequeño universo de películas que quieres ver, volver a ver o simplemente no olvidar.</p>
+      </header>
+        <div class="empty-state empty-state--large" id="favoritos-vacio"><span class="empty-state__icon"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></span><h2>Las historias que quieras volver a encontrar.</h2>
+            <p>Tu lista está esperando su primera película. Cuando se abra el catálogo, podrás guardar aquí tus próximas favoritas.</p>
+            <a class="button button--primary" href="catalogo.html">Descubrir películas</a>
+          </div>
+          <ul class="movie-grid" id="lista-favoritos" aria-label="Películas favoritas" hidden></ul>
+          <p id="favoritos-estado" role="status" aria-atomic="true"></p>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+            <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+          </a>
+          <p>Una película para cada momento.</p>
+        </div>
+        <nav aria-label="Navegación del pie de página">
+          <ul>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#arriba">Volver arriba ↑</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
+        <p><small>Hecho para quienes aman el cine.</small></p>
+      </div>
+      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
+    </footer>
+<template id="plantilla-favorito">
+      <li class="movie-grid__item">
+        <article class="favorite-card">
+          <h2><a href="pelicula.html" data-action="ver-ficha" data-field="title">Título de la película</a></h2>
+          <p data-field="category">Categoría no disponible</p>
+          <a href="pelicula.html" data-action="ver-ficha">Consultar disponibilidad y alquiler</a>
+          <button type="button" data-action="quitar-favorito" disabled>Quitar de favoritos</button>
+        </article>
+      </li>
+    </template>
+  </body>
+</html>

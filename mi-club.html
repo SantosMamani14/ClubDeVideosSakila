@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Organiza tus alquileres y devoluciones en Sakila. Consulta tu historial y los posibles recargos simulados.">
+    <meta name="theme-color" content="#101211">
+    <meta name="color-scheme" content="dark">
+    <title>Mi club | Sakila · Club de Videos</title>
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
+         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
+         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+  </head>
+  <body class="page-mi-club">
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="site-header" id="arriba">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+          <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navegación principal">
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="favoritos.html">Favoritos</a></li>
+            <li><a href="mi-club.html" aria-current="page">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+          </ul>
+        </nav>
+        <a class="header-cart" href="carrito.html">
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+        </a>
+      </div>
+    </header>
+    <main class="site-main" id="contenido" tabindex="-1">
+      <section class="member section container" id="mi-club" aria-labelledby="club-titulo">
+<header class="page-heading">
+        <p class="eyebrow">Bienvenido a tu espacio</p>
+        <h1 id="club-titulo">Tu vida entre películas.</h1>
+        <p>Tus alquileres, tus próximas devoluciones y todas las historias que ya disfrutaste.</p>
+      </header>
+        <nav class="member-nav" aria-label="Secciones del socio">
+          <ul>
+            <li><a href="#pendientes">Pendientes de devolución</a></li>
+            <li><a href="#historial">Historial de alquileres</a></li>
+            <li><a href="#multas">Multas simuladas</a></li>
+            <li><a href="favoritos.html">Mis favoritos</a></li>
+          </ul>
+        </nav>
+        <dl class="member-summary" aria-label="Resumen de actividad">
+          <div class="stat-card"><dt>Alquileres activos</dt>
+          <dd><output id="socio-alquileres">0</output></dd></div>
+          <div class="stat-card"><dt>Devoluciones vencidas</dt>
+          <dd><output id="socio-vencidos">0</output></dd></div>
+          <div class="stat-card"><dt>Películas favoritas</dt>
+          <dd><output id="socio-favoritos">0</output></dd></div>
+          <div class="stat-card"><dt>Multas simuladas</dt>
+          <dd><output id="socio-multas">Sin multas</output></dd></div>
+        </dl>
+
+        <section class="member-panel" id="pendientes" aria-labelledby="pendientes-titulo">
+          <header>
+            <h2 id="pendientes-titulo">Pendientes de devolución</h2>
+            <p>Consulta las fechas límite y registra las devoluciones de tus alquileres activos.</p>
+          </header>
+          <p class="empty-state" id="pendientes-vacio">No tienes películas pendientes de devolución.</p>
+          <ul class="rental-list" id="lista-pendientes" aria-label="Alquileres pendientes de devolución" hidden></ul>
+          <p id="devolucion-estado" role="status" aria-atomic="true"></p>
+        </section>
+
+        <section class="member-panel" id="historial" aria-labelledby="historial-titulo">
+          <header>
+            <h2 id="historial-titulo">Historial de alquileres</h2>
+            <p>Vuelve a encontrar las películas que disfrutaste y consulta el detalle de cada préstamo.</p>
+          </header>
+          <p class="empty-state" id="historial-vacio">Todavía no hay alquileres en tu historial.</p>
+          <ol class="history-list" id="lista-historial" aria-label="Historial de alquileres" hidden></ol>
+        </section>
+
+        <section class="member-panel" id="multas" aria-labelledby="multas-titulo">
+          <header>
+            <h2 id="multas-titulo">Multas simuladas</h2>
+            <p>Consulta los posibles recargos por devoluciones fuera de plazo. Son simulaciones del club y no generan pagos reales.</p>
+          </header>
+          <p class="empty-state" id="multas-vacio">No tienes multas pendientes.</p>
+          <ul class="fine-list" id="lista-multas" aria-label="Detalle de multas simuladas" hidden></ul>
+          <p>Total simulado pendiente: <output id="multas-total">Sin importe</output></p>
+          <details class="help-item">
+            <summary>¿Cómo se calcularán los recargos?</summary>
+            <p>Un recargo dependerá de los días transcurridos después de la fecha de devolución y de la tarifa diaria de penalización del club. Esa tarifa deberá estar informada antes de confirmar una reserva.</p>
+          </details>
+        </section>
+
+        
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+            <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+          </a>
+          <p>Una película para cada momento.</p>
+        </div>
+        <nav aria-label="Navegación del pie de página">
+          <ul>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#arriba">Volver arriba ↑</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
+        <p><small>Hecho para quienes aman el cine.</small></p>
+      </div>
+      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
+    </footer>
+<template id="plantilla-alquiler-pendiente">
+      <li>
+        <article class="rental-card">
+          <h3 data-field="title">Título de la película</h3>
+          <dl>
+            <dt>Fecha de alquiler</dt>
+            <dd data-field="rental-date">No disponible</dd>
+            <dt>Fecha límite de devolución</dt>
+            <dd data-field="due-date">No disponible</dd>
+            <dt>Estado</dt>
+            <dd data-field="status">Por confirmar</dd>
+            <dt>Multa simulada</dt>
+            <dd data-field="fine">Sin importe</dd>
+          </dl>
+          <button type="button" data-action="devolver-pelicula" disabled>Registrar devolución</button>
+        </article>
+      </li>
+    </template>
+<template id="plantilla-historial">
+      <li>
+        <article class="history-card">
+          <h3 data-field="title">Título de la película</h3>
+          <dl>
+            <dt>Referencia de reserva</dt>
+            <dd data-field="reservation-id">No disponible</dd>
+            <dt>Fecha de alquiler</dt>
+            <dd data-field="rental-date">No disponible</dd>
+            <dt>Fecha de devolución</dt>
+            <dd data-field="return-date">No disponible</dd>
+            <dt>Días de préstamo</dt>
+            <dd data-field="days">No disponible</dd>
+            <dt>Importe del alquiler</dt>
+            <dd data-field="total">Sin importe</dd>
+            <dt>Estado del alquiler</dt>
+            <dd data-field="status">Por confirmar</dd>
+          </dl>
+          <a href="pelicula.html" data-action="ver-ficha">Volver a ver la ficha</a>
+        </article>
+      </li>
+    </template>
+<template id="plantilla-multa">
+      <li>
+        <article class="fine-card">
+          <h3 data-field="title">Título de la película</h3>
+          <dl>
+            <dt>Fecha límite de devolución</dt>
+            <dd data-field="due-date">No disponible</dd>
+            <dt>Días de retraso</dt>
+            <dd data-field="overdue-days">Por calcular</dd>
+            <dt>Recargo diario</dt>
+            <dd data-field="daily-fine">Por definir</dd>
+            <dt>Importe simulado</dt>
+            <dd data-field="fine">Por calcular</dd>
+          </dl>
+          <a href="#pendientes">Revisar devolución pendiente</a>
+        </article>
+      </li>
+    </template>
+  </body>
+</html>

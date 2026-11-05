@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Resuelve tus dudas sobre el catálogo, las reservas, los favoritos y las devoluciones del Club de Videos Sakila.">
+    <meta name="theme-color" content="#101211">
+    <meta name="color-scheme" content="dark">
+    <title>Ayuda | Sakila · Club de Videos</title>
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
+         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
+         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+  </head>
+  <body class="page-ayuda">
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="site-header" id="arriba">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+          <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navegación principal">
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="favoritos.html">Favoritos</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html" aria-current="page">Ayuda</a></li>
+          </ul>
+        </nav>
+        <a class="header-cart" href="carrito.html">
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+        </a>
+      </div>
+    </header>
+    <main class="site-main" id="contenido" tabindex="-1">
+      <section class="help section container" id="ayuda" aria-labelledby="ayuda-titulo">
+<header class="page-heading">
+        <p class="eyebrow">Estamos para orientarte</p>
+        <h1 id="ayuda-titulo">Todo listo para tu próxima sesión.</h1>
+        <p>Conoce el club y encuentra respuestas antes de elegir tu primera película.</p>
+      </header>
+        <div class="help-layout">
+          <aside class="help-intro" aria-labelledby="help-intro-titulo"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg><h2 id="help-intro-titulo">El cine se disfruta<br>sin complicaciones.</h2><p>Desde descubrir una película hasta devolverla a tiempo: aquí empieza una experiencia sencilla.</p><a class="text-link" href="index.html#como-funciona">Así funciona Sakila <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside>
+          <div class="faq-list"><details class="help-item">
+          <summary>¿Ya puedo reservar una película?</summary>
+          <p>Todavía no. El club está en preparación. Por ahora puedes conocer sus secciones; los controles de búsqueda, reserva y devolución permanecen deshabilitados.</p>
+        </details>
+        <details class="help-item">
+          <summary>¿Qué información tendrá cada película?</summary>
+          <p>Podrás consultar su sinopsis, año de estreno, duración, categoría, clasificación y reparto. También verás el cartel y el tráiler cuando estén disponibles, junto con la tarifa y el plazo de alquiler del club.</p>
+        </details>
+        <details class="help-item">
+          <summary>¿Guardar una película en favoritos equivale a reservarla?</summary>
+          <p>No. Los favoritos serán una lista de películas que te interesan. Para reservar tendrás que añadir el título al carrito, elegir los días de préstamo y confirmar el resumen.</p>
+        </details>
+        <details class="help-item">
+          <summary>¿Dónde consultaré las fechas de devolución?</summary>
+          <p>En <a href="mi-club.html#pendientes">Pendientes de devolución</a>. Los préstamos finalizados se podrán consultar en el <a href="mi-club.html#historial">historial de alquileres</a>.</p>
+        </details>
+        <details class="help-item">
+          <summary>¿Esta demostración realiza cobros?</summary>
+          <p>No. El proyecto simula un club de alquiler de películas. Las reservas y las multas no representan transacciones reales.</p>
+        </details></div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+            <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+          </a>
+          <p>Una película para cada momento.</p>
+        </div>
+        <nav aria-label="Navegación del pie de página">
+          <ul>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#arriba">Volver arriba ↑</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
+        <p><small>Hecho para quienes aman el cine.</small></p>
+      </div>
+      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
+    </footer>
+
+  </body>
+</html>

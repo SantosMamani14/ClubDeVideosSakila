@@ -1,0 +1,29 @@
+/* Fase 2: identidad Cine Noche y valores compartidos por todas las páginas. */
+:root {
+  color-scheme: dark;
+  --color-bg: #101211;
+  --color-surface: #181b19;
+  --color-surface-raised: #202420;
+  --color-input: #111412;
+  --color-text: #f5f1e8;
+  --color-muted: #b6bab1;
+  --color-subtle: #959d92;
+  --color-primary: #d8ad68;
+  --color-primary-light: #efc889;
+  --color-primary-soft: #2b261d;
+  --color-accent: #bd6556;
+  --color-border: #343a32;
+  --color-border-soft: #282e27;
+  --color-inverse: #191a15;
+  --font-body: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-title: Georgia, "Times New Roman", serif;
+  --font-label: "Segoe UI", system-ui, sans-serif;
+  --content-width: 1240px;
+  --gutter: clamp(1.125rem, 4vw, 3rem);
+  --space-section: clamp(3.5rem, 7vw, 6.5rem);
+  --radius-sm: 0.35rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.2rem;
+  --shadow-card: 0 18px 44px rgb(0 0 0 / 14%);
+  --transition: 180ms ease;
+}

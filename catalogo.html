@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explora el catálogo de Sakila por título, reparto, género y clasificación. Encuentra tu próxima película.">
+    <meta name="theme-color" content="#101211">
+    <meta name="color-scheme" content="dark">
+    <title>Catálogo | Sakila · Club de Videos</title>
+    <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Fase 2: páginas HTML independientes y CSS modular, siguiendo web04 del ZIP.
+         Fases posteriores: Vue para interacciones; TMDB para películas y carteles.
+         Tarifas e inventario serán datos del club. No se incluyen claves ni scripts. -->
+  </head>
+  <body class="page-catalogo">
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="site-header" id="arriba">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+          <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+        </a>
+        <nav class="primary-nav" aria-label="Navegación principal">
+          <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="catalogo.html" aria-current="page">Catálogo</a></li>
+            <li><a href="favoritos.html">Favoritos</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+          </ul>
+        </nav>
+        <a class="header-cart" href="carrito.html">
+          <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" aria-label="0 películas">0</span>
+        </a>
+      </div>
+    </header>
+    <main class="site-main" id="contenido" tabindex="-1">
+      <section class="catalog section container" id="catalogo" aria-labelledby="catalogo-titulo">
+<header class="page-heading">
+        <p class="eyebrow">Busca. Descubre. Encuentra.</p>
+        <h1 id="catalogo-titulo">Una historia para cada noche.</h1>
+        <p>Explora por género, descubre un reparto o encuentra esa película de la que todos hablan.</p>
+      </header>
+        <div class="catalog-layout">
+          <aside class="filter-panel" aria-labelledby="filtros-panel-titulo"><h2 id="filtros-panel-titulo">Encuentra tu película</h2><form class="catalog-filters" id="formulario-filtros" role="search" aria-label="Buscar y filtrar películas" aria-describedby="filtros-ayuda">
+          <p id="filtros-ayuda">Búsqueda y filtros disponibles próximamente.</p>
+          <fieldset class="filter-fields" disabled>
+            <legend>Búsqueda y filtros</legend>
+            <div class="form-field">
+              <label for="busqueda">Título o integrante del reparto</label>
+              <input type="search" id="busqueda" name="busqueda" placeholder="Escribe una película o un nombre" maxlength="100" autocomplete="off">
+            </div>
+            <div class="form-field">
+              <label for="categoria">Categoría</label>
+              <select id="categoria" name="categoria">
+                <option value="">Todas las categorías</option>
+                <option value="accion">Acción</option>
+                <option value="drama">Drama</option>
+                <option value="ciencia-ficcion">Ciencia ficción</option>
+                <option value="aventura">Aventura</option>
+                <option value="animacion">Animación</option>
+                <option value="comedia">Comedia</option>
+                <option value="documental">Documental</option>
+                <option value="terror">Terror</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="clasificacion">Clasificación por edades</label>
+              <select id="clasificacion" name="clasificacion" aria-describedby="clasificacion-ayuda">
+                <option value="">Todas las clasificaciones</option>
+                <option value="G">G · Público general</option>
+                <option value="PG">PG · Se sugiere orientación parental</option>
+                <option value="PG-13">PG-13 · Se advierte a madres y padres</option>
+                <option value="R">R · Restringida</option>
+                <option value="NC-17">NC-17 · Solo mayores de 17 años</option>
+                <option value="sin-clasificar">Sin clasificación disponible</option>
+              </select>
+              <p id="clasificacion-ayuda">Referencias de clasificación de Estados Unidos; algunos títulos pueden no tener clasificación informada.</p>
+            </div>
+            <div class="form-field">
+              <label for="orden">Ordenar películas</label>
+              <select id="orden" name="orden">
+                <option value="titulo-asc">Título: A a Z</option>
+                <option value="estreno-desc">Estreno más reciente</option>
+                <option value="duracion-asc">Menor duración</option>
+                <option value="tarifa-asc">Menor tarifa de alquiler</option>
+              </select>
+            </div>
+            <button class="button button--secondary" type="reset">Limpiar filtros</button>
+          </fieldset>
+        </form></aside>
+          <div class="catalog__results" aria-labelledby="resultados-titulo">
+          <h2 id="resultados-titulo">La cartelera</h2>
+          <p class="status-label" id="catalogo-estado" role="status" aria-atomic="true">Catálogo pendiente de apertura.</p>
+          <p class="catalog__count" hidden><output id="cantidad-resultados" for="busqueda categoria clasificacion">0</output> películas encontradas.</p>
+
+          <div class="empty-state" id="catalogo-vacio">
+            <span class="empty-state__icon"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
+            <h3>El próximo estreno está por llegar.</h3>
+            <p>Estamos preparando una selección de historias para ti. Aquí podrás descubrir sus carteles, fichas y opciones de alquiler.</p>
+          </div>
+          <div class="empty-state" id="catalogo-sin-resultados" hidden>
+            <p><strong>No encontramos películas con esos criterios.</strong></p>
+            <p>Prueba con otro título, un nombre del reparto o una categoría diferente.</p>
+          </div>
+          <div class="notice notice--error" id="catalogo-error" role="alert" hidden>
+            <p>No pudimos cargar las películas. Inténtalo de nuevo en unos minutos.</p>
+            <button type="button" data-action="reintentar-catalogo" disabled>Volver a intentar</button>
+          </div>
+
+          <ul class="movie-grid" id="lista-peliculas" aria-label="Películas disponibles" hidden></ul>
+
+          <nav class="pagination" aria-label="Páginas del catálogo" hidden>
+            <button type="button" data-action="pagina-anterior" disabled>Página anterior</button>
+            <p>Página <span id="pagina-actual">1</span> de <span id="total-paginas">1</span></p>
+            <button type="button" data-action="pagina-siguiente" disabled>Página siguiente</button>
+          </nav>
+        </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+            <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
+          </a>
+          <p>Una película para cada momento.</p>
+        </div>
+        <nav aria-label="Navegación del pie de página">
+          <ul>
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="mi-club.html">Mi club</a></li>
+            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#arriba">Volver arriba ↑</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p><small>Proyecto académico · Tecnologías Web I (SIS-214)</small></p>
+        <p><small>Hecho para quienes aman el cine.</small></p>
+      </div>
+      <!-- Añadir la atribución oficial de TMDB cuando se conecte su catálogo. -->
+    </footer>
+<template id="plantilla-pelicula">
+      <li class="movie-grid__item">
+        <article class="movie-card">
+          <figure class="movie-card__poster" data-field="poster">
+            <!-- Sustituir por picture/img con URL de cartel válida y texto alternativo. -->
+            <figcaption>Cartel no disponible.</figcaption>
+          </figure>
+          <header>
+            <p class="movie-card__category" data-field="category">Categoría</p>
+            <h3 class="movie-card__title"><a href="pelicula.html" data-action="ver-ficha" data-field="title">Título de la película</a></h3>
+          </header>
+          <dl class="movie-card__metadata">
+            <dt>Año</dt>
+            <dd data-field="year">No disponible</dd>
+            <dt>Duración</dt>
+            <dd data-field="runtime">No disponible</dd>
+            <dt>Clasificación</dt>
+            <dd data-field="certification">Sin clasificación disponible</dd>
+            <dt>Tarifa de alquiler</dt>
+            <dd data-field="rental-rate">Por definir</dd>
+            <dt>Días incluidos</dt>
+            <dd data-field="rental-duration">Por definir</dd>
+          </dl>
+          <p data-field="availability">Disponibilidad por confirmar</p>
+          <div class="movie-card__actions">
+            <a class="button button--secondary" href="pelicula.html" data-action="ver-ficha">Ver ficha y alquiler</a>
+            <button type="button" data-action="guardar-favorito" aria-pressed="false" disabled>Guardar en favoritos</button>
+          </div>
+        </article>
+      </li>
+    </template>
+  </body>
+</html>
