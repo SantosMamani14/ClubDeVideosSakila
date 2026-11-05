@@ -17,25 +17,25 @@
   </head>
   <body class="page-index">
     <p class="app-startup" id="app-loading" role="status">Cargando Sakila…</p>
-    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales. <a href="ayuda.html">Consultar ayuda</a></p></noscript>
+    <noscript><p class="container notice">Activa JavaScript para consultar películas y gestionar tus alquileres. Sakila es una demostración sin cobros reales.</p></noscript>
     <div id="app" v-cloak>
-    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <a class="skip-link" href="#contenido" @click.prevent="focusSection('contenido')">Saltar al contenido principal</a>
     <header class="site-header" id="arriba">
       <div class="container header-inner">
-        <a class="brand" href="index.html" aria-label="Sakila, inicio">
+        <a class="brand" href="#/inicio" :aria-current="page === 'index' ? 'page' : null" aria-label="Sakila, inicio">
           <span class="brand-mark"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 8h4M3 16h4M17 8h4M17 16h4M7 12h10"/></svg></span>
           <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
         </a>
         <nav class="primary-nav" aria-label="Navegación principal">
           <ul>
-            <li><a href="index.html" aria-current="page">Inicio</a></li>
-            <li><a href="catalogo.html">Catálogo</a></li>
-            <li><a href="favoritos.html">Favoritos</a></li>
-            <li><a href="mi-club.html">Mi club</a></li>
-            <li><a href="ayuda.html">Ayuda</a></li>
+            <li><a href="#/inicio" :aria-current="page === 'index' ? 'page' : null">Inicio</a></li>
+            <li><a href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Catálogo</a></li>
+            <li><a href="#/favoritos" :aria-current="page === 'favoritos' ? 'page' : null">Favoritos</a></li>
+            <li><a href="#/mi-club" :aria-current="page === 'mi-club' ? 'page' : null">Mi club</a></li>
+            <li><a href="#/ayuda" :aria-current="page === 'ayuda' ? 'page' : null">Ayuda</a></li>
           </ul>
         </nav>
-        <a class="header-cart" href="carrito.html">
+        <a class="header-cart" href="#/carrito" :aria-current="page === 'carrito' ? 'page' : null">
           <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg><span>Mi carrito</span><span class="cart-count" :aria-label="cartCount + ' películas'" v-text="cartCount"></span>
         </a>
       </div>
@@ -44,14 +44,15 @@
       <div v-show="notice" class="container app-message" role="status" aria-live="polite">{{ notice }} <button type="button" @click="notice = ''" aria-label="Cerrar mensaje">Cerrar</button></div>
       <div v-if="storageWarning" class="container notice storage-notice" role="status">{{ storageWarning }}</div>
     <main class="site-main" id="contenido" tabindex="-1">
+      <template v-if="page === 'index'">
       <section class="hero container" id="inicio" aria-labelledby="inicio-titulo">
         <div class="hero__content">
           <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> El cine tiene un lugar para ti</p>
           <h1 id="inicio-titulo">Hay historias que merecen <em>otra noche.</em></h1>
           <p class="hero__description">Una buena película. Tu lugar favorito. Y todo el tiempo para dejarte llevar. Bienvenido a tu club de cine.</p>
           <div class="hero__actions">
-            <a class="button button--primary" href="catalogo.html">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
-            <a class="button button--text" href="mi-club.html">Conocer mi club</a>
+            <a class="button button--primary" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+            <a class="button button--text" href="#/mi-club" :aria-current="page === 'mi-club' ? 'page' : null">Conocer mi club</a>
           </div>
           <p class="hero__note">Descubre. Reserva. Vuelve a emocionarte.</p>
         </div>
@@ -60,16 +61,16 @@
           <figcaption class="hero__caption"><span class="hero__caption-line" aria-hidden="true"></span>Apaga el ruido. Enciende el cine.</figcaption>
         </figure>
       </section>
-      <div class="container"><aside class="notice notice--compact" aria-label="Disponibilidad del club"><span class="status-dot" aria-hidden="true"></span><p>Explora películas y organiza tus reservas por {{ money(policies.dailyRateCents) }} al día. Esta demostración no realiza cobros.</p><a href="ayuda.html">Saber más <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside></div>
+      <div class="container"><aside class="notice notice--compact" aria-label="Disponibilidad del club"><span class="status-dot" aria-hidden="true"></span><p>Explora películas y organiza tus reservas por {{ money(policies.dailyRateCents) }} al día. Esta demostración no realiza cobros.</p><a href="#/ayuda" :aria-current="page === 'ayuda' ? 'page' : null">Saber más <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></aside></div>
       <section class="section container" aria-labelledby="generos-titulo">
         <header class="section-heading section-heading--split">
           <div><p class="eyebrow">Para cada estado de ánimo</p><h2 id="generos-titulo">El cine, a tu manera.</h2></div>
-          <a class="text-link" href="catalogo.html">Conocer el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+          <a class="text-link" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Conocer el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
         </header>
         <div class="genre-grid">
-          <article class="genre-card genre-card--action"><div class="genre-card__art" aria-hidden="true"><span>01</span></div><p class="eyebrow">Siente la adrenalina</p><h3>Acción</h3><p>Historias que no te dejan al borde de la butaca. Te llevan más allá.</p><a href="catalogo.html?genero=accion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
-          <article class="genre-card genre-card--drama"><div class="genre-card__art" aria-hidden="true"><span>02</span></div><p class="eyebrow">Quédate con la emoción</p><h3>Drama</h3><p>Personajes que se sienten cercanos. Historias que siguen contigo.</p><a href="catalogo.html?genero=drama" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
-          <article class="genre-card genre-card--scifi"><div class="genre-card__art" aria-hidden="true"><span>03</span></div><p class="eyebrow">Imagina lo imposible</p><h3>Ciencia ficción</h3><p>Otros mundos, nuevas preguntas y un universo de posibilidades.</p><a href="catalogo.html?genero=ciencia-ficcion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--action"><div class="genre-card__art" aria-hidden="true"><span>01</span></div><p class="eyebrow">Siente la adrenalina</p><h3>Acción</h3><p>Historias que no te dejan al borde de la butaca. Te llevan más allá.</p><a href="#/catalogo?genero=accion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--drama"><div class="genre-card__art" aria-hidden="true"><span>02</span></div><p class="eyebrow">Quédate con la emoción</p><h3>Drama</h3><p>Personajes que se sienten cercanos. Historias que siguen contigo.</p><a href="#/catalogo?genero=drama" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
+          <article class="genre-card genre-card--scifi"><div class="genre-card__art" aria-hidden="true"><span>03</span></div><p class="eyebrow">Imagina lo imposible</p><h3>Ciencia ficción</h3><p>Otros mundos, nuevas preguntas y un universo de posibilidades.</p><a href="#/catalogo?genero=ciencia-ficcion" aria-label="Explorar el catálogo de películas">Explorar el catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></article>
         </div>
       </section>
       <section class="how-it-works section container" id="como-funciona" aria-labelledby="pasos-titulo">
@@ -84,22 +85,360 @@
           <li><article><span class="step-number" aria-hidden="true">03</span><h3>Disfruta y vuelve</h3><p>Organiza tus devoluciones y guarda en favoritos las historias que todavía te quedan por descubrir.</p></article></li>
         </ol>
       </section>
-      <section class="club-banner container" aria-labelledby="banner-titulo"><div><p class="eyebrow">Una comunidad de historias</p><h2 id="banner-titulo">Tu próxima noche de cine<br>empieza aquí.</h2><p>Haz espacio para las películas que todavía no sabes que vas a amar.</p></div><a class="button button--primary" href="catalogo.html">Entrar al catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></section>
+      <section class="club-banner container" aria-labelledby="banner-titulo"><div><p class="eyebrow">Una comunidad de historias</p><h2 id="banner-titulo">Tu próxima noche de cine<br>empieza aquí.</h2><p>Haz espacio para las películas que todavía no sabes que vas a amar.</p></div><a class="button button--primary" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Entrar al catálogo <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a></section>
+          </template>
+      <template v-if="page === 'catalogo'">
+      <section class="catalog section container" id="catalogo" aria-labelledby="catalogo-titulo">
+        <header class="page-heading">
+          <p class="eyebrow">Busca. Descubre. Encuentra.</p>
+          <h1 id="catalogo-titulo">Una historia para cada noche.</h1>
+          <p>Explora por género, descubre un reparto o encuentra esa película de la que todos hablan.</p>
+        </header>
+        <div class="catalog-layout">
+          <aside class="filter-panel" aria-labelledby="filtros-panel-titulo">
+            <h2 id="filtros-panel-titulo">Encuentra tu película</h2>
+            <form class="catalog-filters" id="formulario-filtros" role="search" aria-label="Buscar y filtrar películas" aria-describedby="filtros-ayuda" @submit.prevent @reset.prevent="resetFilters">
+              <p id="filtros-ayuda">Busca por título o reparto dentro del catálogo cargado. Los resultados cambian mientras escribes.</p>
+              <fieldset class="filter-fields" :disabled="loading">
+                <legend>Búsqueda y filtros</legend>
+                <div class="form-field">
+                  <label for="busqueda">Título o integrante del reparto</label>
+                  <input type="search" id="busqueda" name="busqueda" v-model="filters.search" placeholder="Película o nombre del reparto" maxlength="100" autocomplete="off">
+                </div>
+                <div class="form-field">
+                  <label for="categoria">Categoría</label>
+                  <select id="categoria" name="categoria" v-model="filters.genre">
+                    <option value="">Todas las categorías</option>
+                    <option v-for="genre in availableGenres" :key="genre" :value="genreValue(genre)">{{ genre }}</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="clasificacion">Clasificación por edades</label>
+                  <select id="clasificacion" name="clasificacion" v-model="filters.certification" aria-describedby="clasificacion-ayuda">
+                    <option value="">Todas las clasificaciones</option>
+                    <option value="G">G · Público general</option>
+                    <option value="PG">PG · Orientación parental</option>
+                    <option value="PG-13">PG-13 · Advertencia parental</option>
+                    <option value="R">R · Restringida</option>
+                    <option value="NC-17">NC-17 · Mayores de 17 años</option>
+                    <option value="sin-clasificar">Sin clasificación disponible</option>
+                  </select>
+                  <p id="clasificacion-ayuda">Referencias de clasificación de Estados Unidos. Algunos títulos no tienen clasificación informada.</p>
+                </div>
+                <div class="form-field">
+                  <label for="orden">Ordenar películas</label>
+                  <select id="orden" name="orden" v-model="filters.sort">
+                    <option value="titulo-asc">Título: A a Z</option>
+                    <option value="estreno-desc">Estreno más reciente</option>
+                    <option value="duracion-asc">Menor duración</option>
+                    <option value="tarifa-asc">Menor tarifa de alquiler</option>
+                  </select>
+                </div>
+                <button class="button button--secondary" type="reset">Limpiar filtros</button>
+              </fieldset>
+            </form>
+          </aside>
+          <div class="catalog__results" aria-labelledby="resultados-titulo" :aria-busy="loading">
+            <h2 id="resultados-titulo">La cartelera</h2>
+            <p class="status-label" id="catalogo-estado" role="status" aria-atomic="true">{{ loading ? 'Cargando películas…' : error ? 'No pudimos actualizar el catálogo.' : filteredMovies.length + ' películas encontradas.' }}</p>
+            <div class="notice notice--retry" v-if="apiWarning"><p>{{ apiWarning }}</p><button type="button" @click="loadMovies()" :disabled="loading">Actualizar catálogo</button></div>
+            <div class="empty-state" v-if="loading">
+              <h3>Preparando tu próxima historia.</h3>
+              <p>Estamos consultando la cartelera. Esto puede tardar unos segundos.</p>
+            </div>
+            <div class="notice notice--error" id="catalogo-error" role="alert" v-else-if="error">
+              <p>{{ error }}</p>
+              <button type="button" @click="loadMovies()">Volver a intentar</button>
+            </div>
+            <div class="empty-state" id="catalogo-sin-resultados" v-else-if="!filteredMovies.length">
+              <h3>No encontramos películas con esos criterios.</h3>
+              <p>Prueba con otro título, un nombre del reparto o una categoría diferente.</p>
+              <button type="button" @click="resetFilters">Limpiar filtros</button>
+            </div>
+            <ul class="movie-grid" id="lista-peliculas" aria-label="Películas disponibles" v-else>
+              <li class="movie-grid__item" v-for="movie in pagedMovies" :key="movie.id">
+                <article class="movie-card">
+                  <figure class="movie-card__poster">
+                    <img v-if="movie.poster &amp;&amp; !imageErrors[movie.id]" :src="movie.poster" :alt="'Cartel de ' + movie.title" width="300" height="450" loading="lazy" decoding="async" @error="onImageError(movie.id)">
+                    <figcaption v-else>Cartel no disponible.</figcaption>
+                  </figure>
+                  <header>
+                    <p class="movie-card__category">{{ movie.genres.join(' · ') || 'Sin categoría' }}</p>
+                    <h3 class="movie-card__title"><a :href="movieUrl(movie)">{{ movie.title }}</a></h3>
+                  </header>
+                  <dl class="movie-card__metadata">
+                    <dt>Año</dt><dd>{{ movie.year || 'No disponible' }}</dd>
+                    <dt>Duración</dt><dd>{{ movie.runtime ? movie.runtime + ' min' : 'No disponible' }}</dd>
+                    <dt>Clasificación</dt><dd>{{ movie.certification }}</dd>
+                    <dt>Alquiler por día</dt><dd>{{ money(policies.dailyRateCents) }}</dd>
+                  </dl>
+                  <p>{{ isRented(movie.id) ? 'Tienes un alquiler activo de esta película.' : isInCart(movie.id) ? 'Ya está en tu carrito.' : 'Disponible para reservar.' }}</p>
+                  <div class="movie-card__actions">
+                    <a class="button button--secondary" :href="movieUrl(movie)">Ver ficha y alquiler</a>
+                    <button type="button" :aria-pressed="isFavorite(movie.id)" :aria-label="(isFavorite(movie.id) ? 'Quitar de favoritos: ' : 'Guardar en favoritos: ') + movie.title" @click="toggleFavorite(movie)">{{ isFavorite(movie.id) ? 'Quitar de favoritos' : 'Guardar en favoritos' }}</button>
+                  </div>
+                </article>
+              </li>
+            </ul>
+            <nav class="pagination" aria-label="Páginas del catálogo" v-if="!loading &amp;&amp; !error &amp;&amp; totalPages > 1">
+              <button type="button" :disabled="pageNumber <= 1" @click="changePage(-1)">Página anterior</button>
+              <p>Página {{ pageNumber }} de {{ totalPages }}</p>
+              <button type="button" :disabled="pageNumber >= totalPages" @click="changePage(1)">Página siguiente</button>
+            </nav>
+          </div>
+        </div>
+      </section>
+          </template>
+      <template v-if="page === 'pelicula'">
+      <section class="movie-section section container" id="ficha-pelicula" aria-labelledby="ficha-titulo">
+        <a class="back-link" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">← Volver al catálogo</a>
+        <header class="page-heading">
+          <p class="eyebrow">Antes de darle play</p>
+          <h1 id="ficha-titulo">Conoce la película.</h1>
+          <p>Una mirada a su historia, sus protagonistas y lo que te espera al otro lado de la pantalla.</p>
+        </header>
+        <div class="empty-state" v-if="loading" role="status"><h2>Cargando la ficha…</h2><p>Un momento, estamos consultando la película.</p></div>
+        <div class="notice notice--error" v-else-if="error" role="alert"><p>{{ error }}</p><button type="button" @click="loadMovies()">Volver a intentar</button></div>
+        <div class="empty-state empty-state--large" id="ficha-vacia" v-else-if="!currentMovie">
+          <h2>Toda gran historia empieza con una elección.</h2>
+          <p>Esta película no está disponible. Selecciona un título del catálogo para abrir su ficha.</p>
+          <a class="button button--primary" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Explorar películas</a>
+        </div>
+        <article class="movie-detail" id="detalle-pelicula" aria-labelledby="detalle-titulo" v-else>
+          <div class="notice notice--retry" v-if="apiWarning"><p>{{ apiWarning }}</p><button type="button" @click="loadMovies()">Actualizar ficha</button></div>
+          <header>
+            <p class="eyebrow" id="detalle-categoria">{{ currentMovie.genres.join(' · ') || 'Sin categoría' }}</p>
+            <h2 id="detalle-titulo" tabindex="-1">{{ currentMovie.title }}</h2>
+            <p id="detalle-titulo-original" v-if="currentMovie.originalTitle &amp;&amp; currentMovie.originalTitle !== currentMovie.title">Título original: {{ currentMovie.originalTitle }}</p>
+          </header>
+          <figure class="movie-poster" id="detalle-cartel">
+            <img v-if="currentMovie.poster &amp;&amp; !imageErrors[currentMovie.id]" :src="currentMovie.poster" :alt="'Cartel de ' + currentMovie.title" width="400" height="600" decoding="async" @error="onImageError(currentMovie.id)">
+            <figcaption v-else>Cartel no disponible.</figcaption>
+          </figure>
+          <dl class="movie-metadata">
+            <dt>Año de estreno</dt><dd id="detalle-anio">{{ currentMovie.year || 'No disponible' }}</dd>
+            <dt>Duración</dt><dd id="detalle-duracion">{{ currentMovie.runtime ? currentMovie.runtime + ' minutos' : 'No disponible' }}</dd>
+            <dt>Clasificación por edades</dt><dd id="detalle-clasificacion">{{ currentMovie.certification }}</dd>
+            <dt>Idioma original</dt><dd id="detalle-idioma">{{ currentMovie.language || 'No disponible' }}</dd>
+            <dt>Tarifa por día</dt><dd id="detalle-tarifa">{{ money(policies.dailyRateCents) }}</dd>
+            <dt>Plazo de préstamo</dt><dd id="detalle-plazo">De {{ policies.minDays }} a {{ policies.maxDays }} días</dd>
+            <dt>Disponibilidad</dt><dd id="detalle-disponibilidad">{{ isRented(currentMovie.id) ? 'Ya tienes un alquiler activo.' : isInCart(currentMovie.id) ? 'Añadida a tu carrito.' : 'Disponible para reservar.' }}</dd>
+          </dl>
+          <section aria-labelledby="sinopsis-titulo"><h3 id="sinopsis-titulo">Sinopsis</h3><p id="detalle-sinopsis">{{ currentMovie.overview || 'Sinopsis no disponible.' }}</p></section>
+          <section aria-labelledby="reparto-titulo">
+            <h3 id="reparto-titulo">Reparto</h3>
+            <ul class="cast-list" id="detalle-reparto" v-if="currentMovie.cast.length"><li v-for="(name, index) in currentMovie.cast" :key="currentMovie.id + '-reparto-' + index">{{ name }}</li></ul>
+            <p v-else>Información del reparto no disponible.</p>
+          </section>
+          <section aria-labelledby="trailer-titulo">
+            <h3 id="trailer-titulo">Tráiler</h3>
+            <figure class="trailer" v-if="trailerEmbed">
+              <iframe :src="trailerEmbed" :title="'Tráiler de ' + currentMovie.title" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+              <figcaption>Tráiler de {{ currentMovie.title }}.</figcaption>
+            </figure>
+            <p v-if="currentMovie.trailer"><a :href="currentMovie.trailer" target="_blank" rel="noopener noreferrer">Ver el tráiler en su plataforma original (se abre en otra pestaña)</a></p>
+            <p id="trailer-estado" v-else>No hay un tráiler disponible para esta película.</p>
+          </section>
+          <form class="rental-form" id="formulario-alquiler" aria-describedby="alquiler-ayuda" @submit.prevent="addToCart(currentMovie, selectedDays)">
+            <p id="alquiler-ayuda">Tarifa del club: {{ money(policies.dailyRateCents) }} por día. Recargo simulado: {{ money(policies.lateFeeCents) }} por cada día de retraso. No se realizan cobros reales.</p>
+            <fieldset>
+              <legend>Prepara tu alquiler</legend>
+              <label for="dias-alquiler">Días de préstamo</label>
+              <input type="number" id="dias-alquiler" name="dias" min="1" max="30" step="1" inputmode="numeric" required v-model="selectedDays" :aria-invalid="!validDays(selectedDays)" aria-describedby="dias-ayuda">
+              <p id="dias-ayuda" :class="{ 'field-error': !validDays(selectedDays) }">Elige un número entero entre 1 y 30 días.</p>
+              <p>Importe estimado: <output id="importe-alquiler" for="dias-alquiler">{{ validDays(selectedDays) ? money(amount(selectedDays)) : 'Revisa los días de préstamo' }}</output></p>
+              <p v-if="validDays(selectedDays)">Devolución prevista: <time :datetime="dueFor(selectedDays)">{{ displayDate(dueFor(selectedDays)) }}</time></p>
+              <button class="button button--primary" type="submit" :disabled="!validDays(selectedDays) || isRented(currentMovie.id) || isInCart(currentMovie.id)">{{ isRented(currentMovie.id) ? 'Alquiler activo' : isInCart(currentMovie.id) ? 'Ya está en tu carrito' : 'Añadir al carrito' }}</button>
+              <button class="button button--secondary" type="button" :aria-pressed="isFavorite(currentMovie.id)" @click="toggleFavorite(currentMovie)">{{ isFavorite(currentMovie.id) ? 'Quitar de favoritos' : 'Guardar en favoritos' }}</button>
+            </fieldset>
+          </form>
+          <a v-if="isInCart(currentMovie.id)" href="#/carrito" :aria-current="page === 'carrito' ? 'page' : null">Revisar mi carrito</a>
+        </article>
+      </section>
+          </template>
+      <template v-if="page === 'carrito'">
+      <section class="cart section container" id="carrito" aria-labelledby="carrito-titulo">
+        <header class="page-heading">
+          <p class="eyebrow">Tu próxima sesión</p><h1 id="carrito-titulo">Mi carrito.</h1>
+          <p>Un lugar para reunir las historias que quieres llevarte a casa.</p>
+        </header>
+        <form class="cart-form cart-layout" id="formulario-carrito" aria-describedby="reserva-ayuda" @submit.prevent="checkout">
+          <div class="cart-content">
+            <p class="status-label" id="carrito-estado" role="status" aria-atomic="true">{{ cartCount ? cartCount + ' películas en tu carrito.' : 'No hay películas en el carrito.' }}</p>
+            <div class="empty-state" id="carrito-vacio" v-if="!cartCount">
+              <h2>Tu noche de cine aún tiene espacio.</h2><p>Explora el catálogo y añade las películas que quieres reservar.</p><a class="button button--secondary" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Explorar películas</a>
+            </div>
+            <fieldset class="cart-items" v-else>
+              <legend>Películas y días de préstamo</legend>
+              <ul class="cart-list" id="lista-carrito" aria-label="Películas de la reserva">
+                <li class="cart-list__item" v-for="item in state.cart" :key="item.movie.id">
+                  <article class="cart-item">
+                    <h2><a :href="movieUrl(item.movie)">{{ item.movie.title }}</a></h2>
+                    <p>Tarifa por día: {{ money(policies.dailyRateCents) }}</p>
+                    <div class="form-field">
+                      <label :for="'dias-' + item.movie.id">Días de préstamo para {{ item.movie.title }}</label>
+                      <input type="number" :id="'dias-' + item.movie.id" :name="'dias-' + item.movie.id" min="1" max="30" step="1" inputmode="numeric" required :value="cartDays[item.movie.id] ?? item.days" @input="updateCartDays(item.movie.id, $event.target.value)" :aria-invalid="!validDays(cartDays[item.movie.id] ?? item.days)" :aria-describedby="'validacion-' + item.movie.id">
+                      <p :id="'validacion-' + item.movie.id" :class="{ 'field-error': !validDays(cartDays[item.movie.id] ?? item.days) }">Elige un número entero de 1 a 30 días.</p>
+                    </div>
+                    <p v-if="validDays(cartDays[item.movie.id] ?? item.days)">Devolución prevista: <time :datetime="dueFor(cartDays[item.movie.id] ?? item.days)">{{ displayDate(dueFor(cartDays[item.movie.id] ?? item.days)) }}</time></p>
+                    <p>Importe: <output :for="'dias-' + item.movie.id">{{ validDays(cartDays[item.movie.id] ?? item.days) ? money(amount(cartDays[item.movie.id] ?? item.days)) : 'Por revisar' }}</output></p>
+                    <button type="button" @click="removeFromCart(item.movie.id)" :aria-label="'Quitar del carrito: ' + item.movie.title">Quitar del carrito</button>
+                  </article>
+                </li>
+              </ul>
+              <button type="button" @click="clearCart">Vaciar carrito</button>
+            </fieldset>
+          </div>
+          <section class="cart-summary" aria-labelledby="resumen-titulo">
+            <h2 id="resumen-titulo">Resumen de la reserva</h2>
+            <dl>
+              <dt>Películas seleccionadas</dt><dd><output id="carrito-cantidad">{{ cartCount }}</output></dd>
+              <dt>Subtotal de alquileres</dt><dd><output id="carrito-subtotal">{{ cartCount && checkoutInvalid ? 'Por revisar' : money(cartTotal) }}</output></dd>
+              <dt>Total de la reserva</dt><dd><output id="carrito-total">{{ cartCount && checkoutInvalid ? 'Por revisar' : money(cartTotal) }}</output></dd>
+            </dl>
+            <p id="reserva-ayuda">Alquiler: {{ money(policies.dailyRateCents) }} por día, entre 1 y 30 días. Recargo simulado: {{ money(policies.lateFeeCents) }} por día de retraso. Esta demostración no realiza cobros.</p>
+            <button class="button button--primary" type="submit" :disabled="checkoutInvalid || cartCount === 0">Confirmar reserva</button>
+            <a class="text-link" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Seguir explorando</a>
+          </section>
+        </form>
+        <section class="reservation-confirmation" id="reserva-confirmada" aria-labelledby="confirmacion-titulo" v-if="lastReservation" role="status">
+          <h2 id="confirmacion-titulo" tabindex="-1">Reserva registrada</h2>
+          <p>{{ lastReservation.count }} películas reservadas por {{ money(lastReservation.totalCents) }}. Puedes consultar las fechas de devolución en Mi club.</p>
+          <a href="#/mi-club?seccion=pendientes">Consultar mis devoluciones</a>
+        </section>
+      </section>
+          </template>
+      <template v-if="page === 'mi-club'">
+      <section class="member section container" id="mi-club" aria-labelledby="club-titulo">
+        <header class="page-heading"><p class="eyebrow">Bienvenido a tu espacio</p><h1 id="club-titulo">Tu vida entre películas.</h1><p>Tus alquileres, tus próximas devoluciones y todas las historias que ya disfrutaste.</p></header>
+        <nav class="member-nav" aria-label="Secciones del socio"><ul><li><a href="#/mi-club?seccion=pendientes">Pendientes de devolución</a></li><li><a href="#/mi-club?seccion=historial">Historial de alquileres</a></li><li><a href="#/mi-club?seccion=multas">Multas simuladas</a></li><li><a href="#/favoritos" :aria-current="page === 'favoritos' ? 'page' : null">Mis favoritos</a></li></ul></nav>
+        <dl class="member-summary" aria-label="Resumen de actividad">
+          <div class="stat-card"><dt>Alquileres activos</dt><dd><output id="socio-alquileres">{{ activeRentals.length }}</output></dd></div>
+          <div class="stat-card"><dt>Devoluciones vencidas</dt><dd><output id="socio-vencidos">{{ lateCount }}</output></dd></div>
+          <div class="stat-card"><dt>Películas favoritas</dt><dd><output id="socio-favoritos">{{ state.favorites.length }}</output></dd></div>
+          <div class="stat-card"><dt>Multas simuladas</dt><dd><output id="socio-multas">{{ money(finesTotal) }}</output></dd></div>
+        </dl>
+        <section class="member-panel" id="pendientes" aria-labelledby="pendientes-titulo">
+          <header><h2 id="pendientes-titulo">Pendientes de devolución</h2><p>Consulta las fechas límite y registra las devoluciones de tus alquileres activos.</p></header>
+          <p class="empty-state" id="pendientes-vacio" v-if="!activeRentals.length">No tienes películas pendientes de devolución.</p>
+          <ul class="rental-list" id="lista-pendientes" aria-label="Alquileres pendientes de devolución" v-else>
+            <li v-for="rental in activeRentals" :key="rental.id">
+              <article class="rental-card">
+                <h3><a :href="movieUrl(rental.movie)">{{ rental.movie.title }}</a></h3>
+                <dl>
+                  <dt>Fecha de alquiler</dt><dd><time :datetime="rental.startDate">{{ displayDate(rental.startDate) }}</time></dd>
+                  <dt>Fecha límite</dt><dd><time :datetime="rental.dueDate">{{ displayDate(rental.dueDate) }}</time></dd>
+                  <dt>Estado</dt><dd :class="{ 'field-error': lateDays(rental) > 0 }">{{ rentalStatus(rental) }}</dd>
+                  <dt>Importe del alquiler</dt><dd>{{ money(rental.totalCents) }}</dd>
+                  <dt>Multa simulada</dt><dd>{{ money(feeFor(rental)) }}</dd>
+                </dl>
+                <button type="button" @click="returnRental(rental.id)" :aria-label="'Registrar devolución de ' + rental.movie.title">Registrar devolución</button>
+              </article>
+            </li>
+          </ul>
+        </section>
+        <section class="member-panel" id="historial" aria-labelledby="historial-titulo">
+          <header><h2 id="historial-titulo">Historial de alquileres</h2><p>Las películas devueltas y el detalle de cada préstamo, en un solo lugar.</p></header>
+          <p class="empty-state" id="historial-vacio" v-if="!completedRentals.length">Todavía no hay alquileres finalizados en tu historial.</p>
+          <ol class="history-list" id="lista-historial" aria-label="Historial de alquileres" v-else>
+            <li v-for="rental in completedRentals" :key="rental.id">
+              <article class="history-card">
+                <h3><a :href="movieUrl(rental.movie)">{{ rental.movie.title }}</a></h3>
+                <dl>
+                  <dt>Referencia</dt><dd>{{ rental.id }}</dd>
+                  <dt>Fecha de alquiler</dt><dd><time :datetime="rental.startDate">{{ displayDate(rental.startDate) }}</time></dd>
+                  <dt>Fecha de devolución</dt><dd><time :datetime="rental.returnedDate">{{ displayDate(rental.returnedDate) }}</time></dd>
+                  <dt>Días de préstamo</dt><dd>{{ rental.days }}</dd>
+                  <dt>Importe del alquiler</dt><dd>{{ money(rental.totalCents) }}</dd>
+                  <dt>Recargo simulado</dt><dd>{{ money(feeFor(rental)) }}</dd>
+                  <dt>Estado</dt><dd>{{ rentalStatus(rental) }}</dd>
+                </dl>
+              </article>
+            </li>
+          </ol>
+        </section>
+        <section class="member-panel" id="multas" aria-labelledby="multas-titulo">
+          <header><h2 id="multas-titulo">Multas simuladas</h2><p>Los recargos por devoluciones fuera de plazo son simulaciones y no generan pagos reales.</p></header>
+          <p class="empty-state" id="multas-vacio" v-if="!fines.length">No tienes multas registradas.</p>
+          <ul class="fine-list" id="lista-multas" aria-label="Detalle de multas simuladas" v-else>
+            <li v-for="rental in fines" :key="rental.id">
+              <article class="fine-card">
+                <h3>{{ rental.movie.title }}</h3>
+                <dl>
+                  <dt>Fecha límite</dt><dd><time :datetime="rental.dueDate">{{ displayDate(rental.dueDate) }}</time></dd>
+                  <dt>Días de retraso</dt><dd>{{ lateDays(rental) }}</dd>
+                  <dt>Recargo diario</dt><dd>{{ money(policies.lateFeeCents) }}</dd>
+                  <dt>Importe simulado</dt><dd>{{ money(feeFor(rental)) }}</dd>
+                  <dt>Estado</dt><dd>{{ rental.returnedDate ? 'Importe cerrado al devolver' : 'Pendiente de devolución' }}</dd>
+                </dl>
+                <a v-if="!rental.returnedDate" href="#/mi-club?seccion=pendientes">Revisar devolución pendiente</a>
+              </article>
+            </li>
+          </ul>
+          <p>Total de recargos simulados: <output id="multas-total">{{ money(finesTotal) }}</output></p>
+          <details class="help-item"><summary>¿Cómo se calculan los recargos?</summary><p>Se suman {{ money(policies.lateFeeCents) }} por cada día de calendario posterior a la fecha límite, usando la hora de Bolivia. Al registrar la devolución, el recargo deja de aumentar. Estos importes son únicamente una simulación.</p></details>
+        </section>
+      </section>
+          </template>
+      <template v-if="page === 'favoritos'">
+      <section class="favorites section container" id="favoritos" aria-labelledby="favoritos-titulo">
+        <header class="page-heading"><p class="eyebrow">Guárdalas para otra noche</p><h1 id="favoritos-titulo">Mis favoritos.</h1><p>Un pequeño universo de películas que quieres ver, volver a ver o simplemente no olvidar.</p></header>
+        <p class="status-label" role="status">{{ state.favorites.length }} películas guardadas.</p>
+        <div class="empty-state empty-state--large" id="favoritos-vacio" v-if="!state.favorites.length">
+          <h2>Las historias que quieras volver a encontrar.</h2><p>Tu lista está esperando su primera película. Descubre el catálogo y guarda tus próximas favoritas.</p><a class="button button--primary" href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Descubrir películas</a>
+        </div>
+        <ul class="movie-grid" id="lista-favoritos" aria-label="Películas favoritas" v-else>
+          <li class="movie-grid__item" v-for="movie in state.favorites" :key="movie.id">
+            <article class="favorite-card">
+              <figure class="movie-card__poster">
+                <img v-if="movie.poster &amp;&amp; !imageErrors[movie.id]" :src="movie.poster" :alt="'Cartel de ' + movie.title" width="300" height="450" loading="lazy" decoding="async" @error="onImageError(movie.id)">
+                <figcaption v-else>Cartel no disponible.</figcaption>
+              </figure>
+              <h2><a :href="movieUrl(movie)">{{ movie.title }}</a></h2>
+              <p>{{ movie.genres.join(' · ') || 'Sin categoría' }}</p>
+              <p>{{ money(policies.dailyRateCents) }} por día.</p>
+              <div class="movie-card__actions">
+                <a class="button button--secondary" :href="movieUrl(movie)">Ver ficha y alquiler</a>
+                <button type="button" @click="toggleFavorite(movie)" :aria-label="'Quitar de favoritos: ' + movie.title">Quitar de favoritos</button>
+              </div>
+            </article>
+          </li>
+        </ul>
+      </section>
+          </template>
+      <template v-if="page === 'ayuda'">
+      <section class="help section container" id="ayuda" aria-labelledby="ayuda-titulo">
+        <header class="page-heading"><p class="eyebrow">Estamos para orientarte</p><h1 id="ayuda-titulo">Todo listo para tu próxima sesión.</h1><p>Conoce el club y encuentra respuestas antes de elegir tu primera película.</p></header>
+        <div class="help-layout">
+          <aside class="help-intro" aria-labelledby="help-intro-titulo"><h2 id="help-intro-titulo">El cine se disfruta<br>sin complicaciones.</h2><p>Desde descubrir una película hasta devolverla a tiempo: aquí empieza una experiencia sencilla.</p><a class="text-link" href="#/inicio#como-funciona">Así funciona Sakila →</a></aside>
+          <div class="faq-list">
+            <details class="help-item"><summary>¿Cómo reservo una película?</summary><p>Abre su ficha desde el <a href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">catálogo</a>, elige de 1 a 30 días y añádela al carrito. Revisa el importe y la fecha de devolución; después pulsa «Confirmar reserva». La película aparecerá en Mi club.</p></details>
+            <details class="help-item"><summary>¿Cuánto cuesta el alquiler?</summary><p>La tarifa de esta demostración es {{ money(policies.dailyRateCents) }} por película y día. Por ejemplo, tres días cuestan {{ money(policies.dailyRateCents * 3) }}. Se aceptan plazos enteros de 1 a 30 días. Los importes son reglas del club y no precios de la fuente de películas.</p></details>
+            <details class="help-item"><summary>¿Qué información tiene cada película?</summary><p>La ficha muestra la información disponible en el catálogo: sinopsis, año, duración, géneros, clasificación, reparto y cartel. Si la fuente incluye un tráiler, también encontrarás su enlace. Los datos que no estén disponibles se indican expresamente.</p></details>
+            <details class="help-item"><summary>¿Guardar en favoritos equivale a reservar?</summary><p>No. Los favoritos son tu lista de películas de interés. La reserva se realiza únicamente al confirmar las películas del <a href="#/carrito" :aria-current="page === 'carrito' ? 'page' : null">carrito</a>.</p></details>
+            <details class="help-item"><summary>¿Cómo registro una devolución?</summary><p>Entra a <a href="#/mi-club?seccion=pendientes">Pendientes de devolución</a> y pulsa «Registrar devolución» en la película correspondiente. El préstamo pasará al historial y cualquier recargo dejará de aumentar.</p></details>
+            <details class="help-item"><summary>¿Cómo funcionan las multas simuladas?</summary><p>Se añaden {{ money(policies.lateFeeCents) }} por cada día de calendario posterior a la fecha límite. Las fechas se calculan con la hora de Bolivia. El día de vencimiento no genera recargo.</p></details>
+            <details class="help-item"><summary>¿Dónde se guarda mi actividad?</summary><p>El carrito, los favoritos y los alquileres se guardan en este navegador y dispositivo. Si borras los datos del sitio, cambias de navegador o usas navegación privada, tu actividad puede no conservarse. Si no se puede guardar, el club te mostrará un aviso.</p></details>
+            <details class="help-item"><summary>¿Esta demostración realiza cobros o reproduce películas completas?</summary><p>No. Sakila es un proyecto académico de gestión de alquileres. Las reservas y multas son simuladas, no hay pagos reales ni acceso a películas completas.</p></details>
+          </div>
+        </div>
+      </section>
+          </template>
     </main>
     <footer class="site-footer">
       <div class="container footer-inner">
         <div class="footer-brand">
-          <a class="brand" href="index.html" aria-label="Sakila, inicio">
+          <a class="brand" href="#/inicio" :aria-current="page === 'index' ? 'page' : null" aria-label="Sakila, inicio">
             <span class="brand-text"><strong>Sakila</strong><small>Club de Videos</small></span>
           </a>
           <p>Una película para cada momento.</p>
         </div>
         <nav aria-label="Navegación del pie de página">
           <ul>
-            <li><a href="catalogo.html">Catálogo</a></li>
-            <li><a href="mi-club.html">Mi club</a></li>
-            <li><a href="ayuda.html">Ayuda</a></li>
-            <li><a href="#arriba">Volver arriba ↑</a></li>
+            <li><a href="#/catalogo" :aria-current="['catalogo', 'pelicula'].includes(page) ? 'page' : null">Catálogo</a></li>
+            <li><a href="#/mi-club" :aria-current="page === 'mi-club' ? 'page' : null">Mi club</a></li>
+            <li><a href="#/ayuda" :aria-current="page === 'ayuda' ? 'page' : null">Ayuda</a></li>
+            <li><a href="#arriba" @click.prevent="focusSection('arriba')">Volver arriba ↑</a></li>
           </ul>
         </nav>
       </div>

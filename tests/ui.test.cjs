@@ -21,8 +21,8 @@ async function openPage(t, name, { data, search = '', api, deniedStorage = false
   const virtualConsole = new VirtualConsole();
   virtualConsole.on('error', (...args) => errors.push(args.map(String).join(' ')));
   virtualConsole.on('jsdomError', error => errors.push(error.message));
-  const dom = new JSDOM(fs.readFileSync(path.join(root, name), 'utf8'), {
-    url: 'http://localhost:8765/' + name + search,
+  const dom = new JSDOM(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), {
+    url: 'http://localhost:8765/index.html#/' + (name === 'index.html' ? 'inicio' : name.replace('.html', '')) + search,
     runScripts: 'outside-only', pretendToBeVisual: true, virtualConsole
   });
   const w = dom.window;
@@ -57,7 +57,72 @@ function input(ui, selector, value) {
   element.dispatchEvent(new ui.w.Event(element.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
 }
 
-test('las siete páginas montan sus plantillas reales con Vue', async t => {
+async function navigate(ui, hash) {
+  const changed = new Promise(resolve => ui.w.addEventListener('hashchange', resolve, { once: true }));
+  ui.w.location.hash = hash;
+  await changed;
+  await ui.settle();
+}
+
+test('navegación sin recarga, enlaces directos y recorrido atrás y adelante', async t => {
+  const ui = await openPage(t, 'index.html');
+  const originalApp = ui.app;
+  await navigate(ui, '#/catalogo?genero=accion');
+  assert.equal(ui.app.filters.genre, 'accion');
+  assert.equal(ui.doc.querySelectorAll('.movie-card').length, 1);
+  assert.equal(ui.doc.querySelector('.primary-nav [aria-current="page"]').textContent, 'Catálogo');
+  ui.app.toggleFavorite(movies[1]);
+  await navigate(ui, ui.app.movieUrl(movies[1]));
+  assert.equal(ui.app.currentMovie.id, movies[1].id);
+  ui.app.addToCart(ui.app.currentMovie, 2);
+  await navigate(ui, '#/carrito');
+  assert.equal(ui.app.cartTotal, 2000);
+  ui.app.checkout();
+  await navigate(ui, '#/mi-club?seccion=pendientes');
+  assert.equal(ui.doc.activeElement.id, 'pendientes');
+  assert.equal(ui.app.activeRentals.length, 1);
+  await navigate(ui, '#/favoritos');
+  assert.equal(ui.doc.querySelectorAll('.favorite-card').length, 1);
+  const back = new Promise(resolve => ui.w.addEventListener('hashchange', resolve, { once: true }));
+  ui.w.history.back();
+  await back;
+  await ui.settle();
+  assert.equal(ui.app.page, 'mi-club');
+  const forward = new Promise(resolve => ui.w.addEventListener('hashchange', resolve, { once: true }));
+  ui.w.history.forward();
+  await forward;
+  await ui.settle();
+  assert.equal(ui.app.page, 'favoritos');
+  assert.equal(ui.w.SakilaApp, originalApp);
+  assert.equal(ui.doc.querySelectorAll('main').length, 1);
+  assert.equal(ui.doc.querySelectorAll('h1').length, 1);
+  assert.deepEqual(ui.errors, []);
+});
+
+test('cambiar de vista descarta respuestas pendientes y desmonta el tráiler', async t => {
+  let complete;
+  const ui = await openPage(t, 'index.html', { api: {
+    loadCatalog() { return new Promise(resolve => { complete = resolve; }); },
+    async getMovie() { return movies[0]; },
+    getStatus() { return { warning: '' }; }
+  }});
+  await navigate(ui, '#/catalogo');
+  assert.equal(ui.app.loading, true);
+  await navigate(ui, '#/pelicula?id=tt0111161');
+  assert.ok(ui.doc.querySelector('iframe'));
+  complete(movies);
+  await ui.settle();
+  assert.equal(ui.app.movies.length, 0);
+  assert.equal(ui.app.currentMovie.id, movies[0].id);
+  await navigate(ui, '#/ayuda');
+  assert.equal(ui.doc.querySelector('iframe'), null);
+  assert.equal(ui.app.loading, false);
+  await navigate(ui, '#/ruta-inexistente');
+  assert.equal(ui.app.page, 'index');
+  assert.deepEqual(ui.errors, []);
+});
+
+test('las siete vistas del único index montan sus plantillas reales con Vue', async t => {
   for (const name of ['index.html', 'catalogo.html', 'pelicula.html', 'carrito.html', 'mi-club.html', 'favoritos.html', 'ayuda.html']) {
     const ui = await openPage(t, name);
     assert.equal(ui.doc.querySelectorAll('h1').length, 1, name);

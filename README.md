@@ -1,6 +1,6 @@
 # Club de Videos Sakila
 
-Aplicación de varias páginas con Vue 3.5.45, HTML y CSS modular. El catálogo consulta 24 películas reales mediante la API pública de Cinemeta. No necesita claves ni un proceso de compilación.
+Aplicación de una sola página (`index.html`) con Vue 3.5.45, HTML y CSS modular. El catálogo consulta 24 películas reales mediante la API pública de Cinemeta. No necesita claves ni un proceso de compilación.
 
 ## Abrir el proyecto
 
@@ -11,6 +11,8 @@ npm run dev
 ```
 
 Abre **http://127.0.0.1:8765**. También puedes utilizar Live Server de Visual Studio Code. Utiliza siempre la misma dirección y puerto para conservar el mismo almacenamiento local. La primera carga del catálogo requiere conexión a Internet.
+
+La navegación cambia las vistas sin recargar el documento. Puedes compartir enlaces como `index.html#/catalogo` o `index.html#/pelicula?id=tt0111161`; los botones atrás y adelante conservan el recorrido. HTML reunido en `index.html`, con CSS y JavaScript organizados en archivos separados.
 
 ## Funciones
 
@@ -29,7 +31,7 @@ Cinemeta puede entregar títulos y sinopsis en inglés y no siempre informa clas
 - `js/domain.js`: precios, fechas, validaciones y normalización.
 - `js/store.js`: carrito, favoritos, reservas y persistencia.
 - `js/api.js`: consultas y caché de Cinemeta.
-- `js/main.js`: aplicación Vue y coordinación de las páginas.
+- `js/main.js`: aplicación Vue, navegación interna y coordinación de las vistas.
 - `js/vendor/`: distribución local de Vue y su licencia MIT.
 - `css/`: variables, base, distribución, componentes y animaciones.
 

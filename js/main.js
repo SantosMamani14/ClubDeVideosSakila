@@ -9,8 +9,15 @@
 
   const D = window.SakilaDomain;
   const API = window.SakilaAPI;
-  const page = [...document.body.classList].find(name => name.startsWith("page-"))?.slice(5) || "index";
-  const query = new URLSearchParams(window.location.search);
+  const titles = { index: "Inicio", catalogo: "Catálogo", pelicula: "Película", carrito: "Mi carrito", "mi-club": "Mi club", favoritos: "Favoritos", ayuda: "Ayuda" };
+  function readRoute() {
+    const [path, search = ""] = window.location.hash.replace(/^#\/?/, "").split("?");
+    const page = path === "inicio" || !Object.hasOwn(titles, path) ? "index" : path;
+    return { page, query: new URLSearchParams(search) };
+  }
+  const initial = readRoute();
+  const page = initial.page;
+  const query = initial.query;
   const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("es").trim();
   const genreValue = value => normalize(value).replace(/\s+/g, "-");
   let storage;
@@ -21,11 +28,13 @@
   let requestVersion = 0;
   let storageListener;
   let visibilityListener;
+  let routeListener;
 
   const app = Vue.createApp({
     data() {
       return {
         page,
+        movieId: query.get("id") || "",
         state: store.getState(),
         policies: D.POLICY,
         movies: [],
@@ -110,10 +119,43 @@
       totalPages(value) { this.pageNumber = Math.min(this.pageNumber, value); }
     },
     methods: {
+      focusSection(id) {
+        this.$nextTick(() => {
+          const target = document.getElementById(id) || document.getElementById("contenido");
+          if (!target) return;
+          target.tabIndex = -1;
+          target.focus({ preventScroll: true });
+          target.scrollIntoView?.({ block: "start", behavior: "instant" });
+        });
+      },
+      syncRoute(initialLoad = false) {
+        const route = readRoute();
+        const changed = this.page !== route.page || this.movieId !== (route.query.get("id") || "");
+        if (changed || initialLoad) {
+          requestVersion += 1;
+          this.loading = false;
+          this.error = "";
+          this.apiWarning = "";
+          this.notice = "";
+          this.page = route.page;
+          this.movieId = route.query.get("id") || "";
+          this.detailMovie = null;
+          this.selectedDays = "3";
+          document.body.className = `page-${this.page}`;
+          document.title = `${titles[this.page]} | Sakila · Club de Videos`;
+        }
+        if (this.page === "catalogo") {
+          if (route.query.has("genero")) this.filters.genre = route.query.get("genero");
+          if (route.query.has("buscar")) this.filters.search = route.query.get("buscar");
+        }
+        if ((changed || initialLoad) && ["catalogo", "pelicula"].includes(this.page)) this.loadMovies(false);
+        const section = route.query.get("seccion");
+        if (!initialLoad || section) this.focusSection(["pendientes", "historial", "multas"].includes(section) ? section : "contenido");
+      },
       money: D.formatMoney,
       displayDate: D.formatDate,
       genreValue,
-      movieUrl(movie) { return `pelicula.html?id=${encodeURIComponent(typeof movie === "string" ? movie : movie.id)}`; },
+      movieUrl(movie) { return `#/pelicula?id=${encodeURIComponent(typeof movie === "string" ? movie : movie.id)}`; },
       moviePrice() { return D.POLICY.dailyRateCents; },
       validDays(value) {
         try { D.normalizeDays(value); return true; } catch { return false; }
@@ -209,7 +251,7 @@
         this.apiWarning = "";
         try {
           if (this.page === "pelicula") {
-            const id = query.get("id");
+            const id = this.movieId;
             if (!id) { this.detailMovie = null; return; }
             if (!/^tt\d{7,10}$/.test(id)) throw new Error("El enlace de la película no es válido. Elige un título desde el catálogo.");
             const cached = [...this.state.favorites, ...this.state.cart.map(item => item.movie), ...this.state.rentals.map(rental => rental.movie)].find(movie => movie.id === id);
@@ -253,11 +295,14 @@
       window.addEventListener("storage", storageListener);
       document.addEventListener("visibilitychange", visibilityListener);
       clock = window.setInterval(() => { this.today = D.dateKey(); }, 60000);
-      if (["catalogo", "pelicula"].includes(this.page)) this.loadMovies(false);
+      routeListener = () => this.syncRoute();
+      window.addEventListener("hashchange", routeListener);
+      this.syncRoute(true);
       if (startup) startup.hidden = true;
     },
     beforeUnmount() {
       unsubscribe?.();
+      window.removeEventListener("hashchange", routeListener);
       window.clearInterval(clock);
       window.removeEventListener("storage", storageListener);
       document.removeEventListener("visibilitychange", visibilityListener);
